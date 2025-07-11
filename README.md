@@ -42,8 +42,9 @@ Example adding a product with a name:
    ```bash
    pip install -r requirements.txt
    ```
-2. The bot stores its state in a `data.json` file which is ignored by Git.
-   The file will be created automatically on first run if it doesn't exist.
+2. The bot stores its state in a `data.json` file located next to `bot.py` and
+   ignored by Git. The file will be created automatically on first run if it
+   doesn't exist.
    If you prefer to create it manually, start with the following content:
 
    ```json
