@@ -51,8 +51,9 @@ Example adding a product with a name:
    {"products": {}, "pending": [], "languages": {}}
    ```
 
-   Set the following environment variables explicitly:
-   - `ADMIN_ID` – Telegram user ID of the admin
+   Set the following environment variables **before running the bot**. The
+   application will exit if either is missing or invalid:
+   - `ADMIN_ID` – Telegram user ID of the admin (integer)
    - `ADMIN_PHONE` – phone number shown when users run `/contact`
 3. Run the bot with your bot token:
    ```bash
@@ -71,8 +72,8 @@ Build the image:
 docker build -t accounts-bot .
 ```
 
-Run the container with your bot token. You can also set environment variables
-for the admin using `-e` flags:
+Run the container with your bot token and required admin environment variables
+using `-e` flags:
 
 ```bash
 docker run --rm -e ADMIN_ID=<YOUR_ID> -e ADMIN_PHONE=<YOUR_PHONE> accounts-bot <TOKEN>

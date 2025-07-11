@@ -2,6 +2,10 @@ import sys
 from pathlib import Path
 import types
 import asyncio
+import os
+
+os.environ.setdefault("ADMIN_ID", "1")
+os.environ.setdefault("ADMIN_PHONE", "+111")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from bot import reject, data, ADMIN_ID  # noqa: E402
