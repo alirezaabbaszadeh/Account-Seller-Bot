@@ -295,6 +295,9 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('addproduct_usage', lang))
         return
     name = " ".join(context.args[5:]) if len(context.args) > 5 else None
+    if pid in data['products']:
+        await update.message.reply_text(tr('product_exists', lang))
+        return
     data['products'][pid] = {
         'price': price,
         'username': username,

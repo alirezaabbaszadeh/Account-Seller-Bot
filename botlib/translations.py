@@ -103,6 +103,10 @@ TRANSLATIONS = {
         'en': 'Usage: /addproduct <id> <price> <username> <password> <secret> [name]',
         'fa': 'استفاده: /addproduct <id> <price> <username> <password> <secret> [name]'
     },
+    'product_exists': {
+        'en': 'Product already exists',
+        'fa': 'محصول از قبل وجود دارد'
+    },
     'product_added': {
         'en': 'Product added',
         'fa': 'محصول اضافه شد'
