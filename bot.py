@@ -17,7 +17,8 @@ from telegram.ext import (
 import pyotp
 from botlib.translations import tr
 
-DATA_FILE = Path('data.json')
+# Store data.json in the same directory as this script
+DATA_FILE = Path(__file__).resolve().parent / 'data.json'
 try:
     ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 except ValueError as e:
