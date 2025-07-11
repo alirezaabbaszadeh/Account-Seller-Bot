@@ -3,7 +3,7 @@
 This project contains a simple Telegram bot for selling products with manual payment approval and two-factor authentication codes.
 
 ## Features
-- Admin can add products with price, credentials, and TOTP secret.
+- Admin can add products with price, credentials, TOTP secret, and an optional name.
 - Users can browse products and submit payment proof.
 - Admin approves purchases and credentials are sent to the buyer.
 - Buyers can obtain a current authenticator code with `/code <product_id>`.
@@ -12,6 +12,12 @@ This project contains a simple Telegram bot for selling products with manual pay
   `/resend`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
+
+The `/addproduct` command accepts an optional name parameter:
+
+```bash
+/addproduct <id> <price> <username> <password> <secret> [name]
+```
 
 ## Setup
 1. Install dependencies:
