@@ -55,9 +55,12 @@ Example adding a product with a name:
    application will exit if either is missing or invalid:
    - `ADMIN_ID` – Telegram user ID of the admin (integer)
    - `ADMIN_PHONE` – phone number shown when users run `/contact`
-3. Run the bot with your bot token:
+3. Run the bot with your bot token. Pass it as an argument or via the
+   `BOT_TOKEN` environment variable:
    ```bash
    python bot.py <TOKEN>
+   # or
+   BOT_TOKEN=<TOKEN> python bot.py
    ```
 
 This is a minimal implementation and does not include persistent database storage or full error handling.
@@ -76,7 +79,8 @@ Run the container with your bot token and required admin environment variables
 using `-e` flags:
 
 ```bash
-docker run --rm -e ADMIN_ID=<YOUR_ID> -e ADMIN_PHONE=<YOUR_PHONE> accounts-bot <TOKEN>
+docker run --rm -e ADMIN_ID=<YOUR_ID> -e ADMIN_PHONE=<YOUR_PHONE> \
+    -e BOT_TOKEN=<TOKEN> accounts-bot
 ```
 
 ### Managing pending purchases

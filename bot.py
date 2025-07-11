@@ -439,7 +439,18 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text)
 
 
-def main(token: str):
+def get_bot_token(token: str | None) -> str:
+    """Return the bot token from argument or ``BOT_TOKEN`` env var."""
+    token = token or os.environ.get("BOT_TOKEN")
+    if not token:
+        raise SystemExit(
+            "Bot token missing. Pass it as an argument or set BOT_TOKEN environment variable"
+        )
+    return token
+
+
+def main(token: str | None = None):
+    token = get_bot_token(token)
     app = Application.builder().token(token).build()
 
     app.add_handler(CommandHandler('start', start))
@@ -466,7 +477,5 @@ def main(token: str):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('Usage: python bot.py <TOKEN>')
-    else:
-        main(sys.argv[1])
+    token_arg = sys.argv[1] if len(sys.argv) > 1 else None
+    main(token_arg)
