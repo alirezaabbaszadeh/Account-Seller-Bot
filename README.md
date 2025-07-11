@@ -10,6 +10,7 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Admin can list and manage buyers.
 - Admin can edit product fields with `/editproduct` and resend credentials with `/resend`.
 - Admin can remove a product with `/deleteproduct <id>`.
+- Admin can list pending purchases with `/pending` and reject them with `/reject`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
 - Users can get a list of all commands with `/help`.
@@ -74,6 +75,20 @@ for the admin using `-e` flags:
 
 ```bash
 docker run --rm -e ADMIN_ID=<YOUR_ID> -e ADMIN_PHONE=<YOUR_PHONE> accounts-bot <TOKEN>
+```
+
+### Managing pending purchases
+
+List pending purchases:
+
+```bash
+/pending
+```
+
+Reject a pending purchase:
+
+```bash
+/reject <user_id> <product_id>
 ```
 
 ## Development

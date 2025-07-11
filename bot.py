@@ -309,6 +309,46 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text)
 
 
+async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """List all pending purchases for the admin."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    if update.message.from_user.id != ADMIN_ID:
+        return
+    if not data['pending']:
+        await update.message.reply_text(tr('no_pending', lang))
+        return
+    lines = [
+        tr('pending_entry', lang).format(
+            user_id=p['user_id'],
+            product_id=p['product_id'],
+        )
+        for p in data['pending']
+    ]
+    await update.message.reply_text('\n'.join(lines))
+
+
+async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Reject a pending purchase without approving it."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    if update.message.from_user.id != ADMIN_ID:
+        return
+    try:
+        user_id = int(context.args[0])
+        pid = context.args[1]
+    except (IndexError, ValueError):
+        await update.message.reply_text(tr('reject_usage', lang))
+        return
+    for p in data['pending']:
+        if p['user_id'] == user_id and p['product_id'] == pid:
+            data['pending'].remove(p)
+            save_data(data)
+            await update.message.reply_text(tr('rejected', lang))
+            return
+    await update.message.reply_text(tr('pending_not_found', lang))
+
+
 async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -386,6 +426,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     admin_cmds = [
         tr('help_admin_approve', lang),
+        tr('help_admin_reject', lang),
+        tr('help_admin_pending', lang),
         tr('help_admin_addproduct', lang),
         tr('help_admin_editproduct', lang),
         tr('help_admin_buyers', lang),
@@ -409,6 +451,8 @@ def main(token: str):
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
+    app.add_handler(CommandHandler('reject', reject))
+    app.add_handler(CommandHandler('pending', pending))
     app.add_handler(CommandHandler('code', code))
     app.add_handler(CommandHandler('addproduct', addproduct))
     app.add_handler(CommandHandler('editproduct', editproduct))
