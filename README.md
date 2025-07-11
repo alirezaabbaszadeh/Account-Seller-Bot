@@ -30,7 +30,7 @@ The `/addproduct` command accepts an optional name parameter:
    If you prefer to create it manually, start with the following content:
 
    ```json
-   {"products": {}, "pending": []}
+   {"products": {}, "pending": [], "languages": {}}
    ```
 
    Set the following environment variables explicitly:

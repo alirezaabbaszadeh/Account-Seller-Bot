@@ -31,7 +31,7 @@ def load_data():
     if DATA_FILE.exists():
         with open(DATA_FILE, 'r') as f:
             return json.load(f)
-    return {'products': {}, 'pending': []}
+    return {'products': {}, 'pending': [], 'languages': {}}
 
 
 def save_data(data):
@@ -40,14 +40,27 @@ def save_data(data):
 
 
 data = load_data()
+data.setdefault('languages', {})
+
+
+def user_lang(user_id: int) -> str:
+    """Return stored language for a user, defaulting to 'en'."""
+    return data.get('languages', {}).get(str(user_id), 'en')
+
+
+def ensure_lang(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
+    """Ensure ``context.user_data['lang']`` is set for the user."""
+    context.user_data.setdefault('lang', user_lang(user_id))
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     await update.message.reply_text('Welcome! Use /products to list products.')
 
 
 async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send admin phone number."""
+    ensure_lang(context, update.effective_user.id)
     await update.message.reply_text(f'Admin phone: {ADMIN_PHONE}')
 
 
@@ -56,6 +69,7 @@ def product_keyboard(product_id: str) -> InlineKeyboardMarkup:
 
 
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if not data['products']:
         await update.message.reply_text('No products available')
         return
@@ -68,6 +82,7 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     query = update.callback_query
     await query.answer()
     pid = query.data.split(':')[1]
@@ -76,6 +91,7 @@ async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     pid = context.user_data.get('buy_pid')
     if not pid:
         return
@@ -88,6 +104,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -113,6 +130,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     try:
         pid = context.args[0]
     except IndexError:
@@ -134,6 +152,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -160,6 +179,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -183,6 +203,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Product updated')
 
 async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -199,6 +220,7 @@ async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -229,6 +251,7 @@ async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -249,6 +272,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -265,6 +289,7 @@ async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -286,6 +311,7 @@ async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -304,6 +330,7 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Display available commands for users and admins."""
+    ensure_lang(context, update.effective_user.id)
     user_cmds = [
         '/start - start the bot',
         '/products - list available products',
