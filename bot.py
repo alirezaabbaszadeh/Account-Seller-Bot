@@ -15,6 +15,7 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 import pyotp
+from botlib.translations import tr
 
 DATA_FILE = Path('data.json')
 try:
@@ -25,12 +26,6 @@ except ValueError as e:
 ADMIN_PHONE = os.getenv("ADMIN_PHONE", "+989152062041")  # manager contact number
 
 logging.basicConfig(level=logging.INFO)
-
-MESSAGES = {
-    "en": {
-        "addproduct_usage": "Usage: /addproduct <id> <price> <username> <password> <secret> [name]",
-    }
-}
 
 
 def load_data():
@@ -61,43 +56,48 @@ def ensure_lang(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
-    await update.message.reply_text('Welcome! Use /products to list products.')
+    lang = context.user_data['lang']
+    await update.message.reply_text(tr('welcome', lang))
 
 
 async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send admin phone number."""
     ensure_lang(context, update.effective_user.id)
-    await update.message.reply_text(f'Admin phone: {ADMIN_PHONE}')
+    lang = context.user_data['lang']
+    await update.message.reply_text(tr('admin_phone', lang).format(phone=ADMIN_PHONE))
 
 
-def product_keyboard(product_id: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton('Buy', callback_data=f'buy:{product_id}')]])
+def product_keyboard(product_id: str, lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([[InlineKeyboardButton(tr('buy_button', lang), callback_data=f'buy:{product_id}')]])
 
 
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if not data['products']:
-        await update.message.reply_text('No products available')
+        await update.message.reply_text(tr('no_products', lang))
         return
     for pid, info in data['products'].items():
         text = f"{pid}: {info['price']}"
         name = info.get('name')
         if name:
             text += f"\n{name}"
-        await update.message.reply_text(text, reply_markup=product_keyboard(pid))
+        await update.message.reply_text(text, reply_markup=product_keyboard(pid, lang))
 
 
 async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     query = update.callback_query
     await query.answer()
     pid = query.data.split(':')[1]
     context.user_data['buy_pid'] = pid
-    await query.message.reply_text('Send payment proof as a photo to proceed.')
+    await query.message.reply_text(tr('send_proof', lang))
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     pid = context.user_data.get('buy_pid')
     if not pid:
         return
@@ -108,19 +108,20 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # mistakenly associated with this purchase.
     context.user_data.pop('buy_pid', None)
     save_data(data)
-    await update.message.reply_text('Payment submitted. Wait for admin approval.')
+    await update.message.reply_text(tr('payment_submitted', lang))
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
 
 
 async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         user_id = int(context.args[0])
         pid = context.args[1]
     except (IndexError, ValueError):
-        await update.message.reply_text('Usage: /approve <user_id> <product_id>')
+        await update.message.reply_text(tr('approve_usage', lang))
         return
     for p in data['pending']:
         if p['user_id'] == user_id and p['product_id'] == pid:
@@ -130,38 +131,43 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 buyers.append(user_id)
             save_data(data)
             creds = data['products'][pid]
-            msg = f"Username: {creds.get('username')}\nPassword: {creds.get('password')}"
+            msg = tr('credentials_msg', lang).format(
+                username=creds.get('username'),
+                password=creds.get('password'),
+            )
             await context.bot.send_message(user_id, msg)
-            await context.bot.send_message(user_id, f"Use /code {pid} to get your current authenticator code.")
-            await update.message.reply_text('Approved.')
+            await context.bot.send_message(user_id, tr('use_code_hint', lang).format(pid=pid))
+            await update.message.reply_text(tr('approved', lang))
             return
-    await update.message.reply_text('Pending purchase not found.')
+    await update.message.reply_text(tr('pending_not_found', lang))
 
 
 async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text('Usage: /code <product_id>')
+        await update.message.reply_text(tr('code_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     if update.message.from_user.id not in product.get('buyers', []):
-        await update.message.reply_text('You have not purchased this product.')
+        await update.message.reply_text(tr('not_purchased', lang))
         return
     secret = product.get('secret')
     if not secret:
-        await update.message.reply_text('No TOTP secret set for this product.')
+        await update.message.reply_text(tr('no_secret', lang))
         return
     totp = pyotp.TOTP(secret)
-    await update.message.reply_text(f'Code: {totp.now()}')
+    await update.message.reply_text(tr('code_msg', lang).format(code=totp.now()))
 
 
 async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -171,7 +177,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         password = context.args[3]
         secret = context.args[4]
     except IndexError:
-        await update.message.reply_text(MESSAGES["en"]["addproduct_usage"])
+        await update.message.reply_text(tr('addproduct_usage', lang))
         return
     name = " ".join(context.args[5:]) if len(context.args) > 5 else None
     data['products'][pid] = {
@@ -184,11 +190,12 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if name:
         data['products'][pid]['name'] = name
     save_data(data)
-    await update.message.reply_text('Product added')
+    await update.message.reply_text(tr('product_added', lang))
 
 
 async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
@@ -196,170 +203,183 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         field = context.args[1]
         value = context.args[2]
     except IndexError:
-        await update.message.reply_text(
-            'Usage: /editproduct <id> <field> <value>'
-        )
+        await update.message.reply_text(tr('editproduct_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     if field not in {'price', 'username', 'password', 'secret'}:
-        await update.message.reply_text('Invalid field')
+        await update.message.reply_text(tr('invalid_field', lang))
         return
     product[field] = value
     save_data(data)
-    await update.message.reply_text('Product updated')
+    await update.message.reply_text(tr('product_updated', lang))
 
 
 async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text("Usage: /deleteproduct <id>")
+        await update.message.reply_text(tr('deleteproduct_usage', lang))
         return
     if pid in data["products"]:
         del data["products"][pid]
         save_data(data)
-        await update.message.reply_text("Product deleted")
+        await update.message.reply_text(tr('product_deleted', lang))
     else:
-        await update.message.reply_text("Product not found")
+        await update.message.reply_text(tr('product_not_found', lang))
 
 
 async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text('Usage: /resend <product_id> [user_id]')
+        await update.message.reply_text(tr('resend_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     buyers = product.get('buyers', [])
     if len(context.args) > 1:
         try:
             uid = int(context.args[1])
         except ValueError:
-            await update.message.reply_text('Invalid user id')
+            await update.message.reply_text(tr('invalid_user_id', lang))
             return
         buyers = [uid] if uid in buyers else []
     if not buyers:
-        await update.message.reply_text('No buyers to send to')
+        await update.message.reply_text(tr('no_buyers_send', lang))
         return
-    msg = f"Username: {product.get('username')}\nPassword: {product.get('password')}"
+    msg = tr('credentials_msg', lang).format(
+        username=product.get('username'),
+        password=product.get('password'),
+    )
     for uid in buyers:
         await context.bot.send_message(uid, msg)
-        await context.bot.send_message(uid, f"Use /code {pid} to get your current authenticator code.")
-    await update.message.reply_text('Credentials resent')
+        await context.bot.send_message(uid, tr('use_code_hint', lang).format(pid=pid))
+    await update.message.reply_text(tr('credentials_resent', lang))
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text('Usage: /stats <product_id>')
+        await update.message.reply_text(tr('stats_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     buyers = product.get('buyers', [])
-    text = (
-        f"Price: {product.get('price')}\n"
-        f"Total buyers: {len(buyers)}"
+    text = "\n".join(
+        [
+            tr('price_line', lang).format(price=product.get('price')),
+            tr('total_buyers_line', lang).format(count=len(buyers)),
+        ]
     )
     await update.message.reply_text(text)
 
 
 async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text('Usage: /buyers <product_id>')
+        await update.message.reply_text(tr('buyers_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     buyers_list = product.get('buyers', [])
-    await update.message.reply_text('Buyers: ' + ', '.join(map(str, buyers_list)) if buyers_list else 'No buyers')
+    if buyers_list:
+        await update.message.reply_text(tr('buyers_list', lang).format(list=', '.join(map(str, buyers_list))))
+    else:
+        await update.message.reply_text(tr('no_buyers', lang))
 
 
 async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
         uid = int(context.args[1])
     except (IndexError, ValueError):
-        await update.message.reply_text('Usage: /deletebuyer <product_id> <user_id>')
+        await update.message.reply_text(tr('deletebuyer_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     if uid in product.get('buyers', []):
         product['buyers'].remove(uid)
         save_data(data)
-        await update.message.reply_text('Buyer removed')
+        await update.message.reply_text(tr('buyer_removed', lang))
     else:
-        await update.message.reply_text('Buyer not found')
+        await update.message.reply_text(tr('buyer_not_found', lang))
 
 
 async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
         return
     try:
         pid = context.args[0]
     except IndexError:
-        await update.message.reply_text('Usage: /clearbuyers <product_id>')
+        await update.message.reply_text(tr('clearbuyers_usage', lang))
         return
     product = data['products'].get(pid)
     if not product:
-        await update.message.reply_text('Product not found')
+        await update.message.reply_text(tr('product_not_found', lang))
         return
     product['buyers'] = []
     save_data(data)
-    await update.message.reply_text('All buyers removed')
+    await update.message.reply_text(tr('all_buyers_removed', lang))
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Display available commands for users and admins."""
     ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
     user_cmds = [
-        '/start - start the bot',
-        '/products - list available products',
-        '/code <product_id> - get authenticator code',
-        '/contact - view admin phone number',
-        '/help - show this message',
+        tr('help_user_start', lang),
+        tr('help_user_products', lang),
+        tr('help_user_code', lang),
+        tr('help_user_contact', lang),
+        tr('help_user_help', lang),
     ]
     admin_cmds = [
-        '/approve <user_id> <product_id> - approve a pending purchase',
-        '/addproduct <id> <price> <username> <password> <secret> [name] - add a product',
-        '/editproduct <id> <field> <value> - edit product information',
-        '/buyers <product_id> - list buyers of a product',
-        '/deletebuyer <product_id> <user_id> - remove a buyer',
-        '/clearbuyers <product_id> - remove all buyers',
-        '/resend <product_id> [user_id] - resend credentials',
-        '/stats <product_id> - show product statistics',
+        tr('help_admin_approve', lang),
+        tr('help_admin_addproduct', lang),
+        tr('help_admin_editproduct', lang),
+        tr('help_admin_buyers', lang),
+        tr('help_admin_deletebuyer', lang),
+        tr('help_admin_clearbuyers', lang),
+        tr('help_admin_resend', lang),
+        tr('help_admin_stats', lang),
     ]
-    text = '*User commands*\n' + '\n'.join(user_cmds)
-    text += '\n\n*Admin commands*\n' + '\n'.join(admin_cmds)
+    text = tr('help_user_header', lang) + '\n' + '\n'.join(user_cmds)
+    text += '\n\n' + tr('help_admin_header', lang) + '\n' + '\n'.join(admin_cmds)
     await update.message.reply_text(text)
 
 
