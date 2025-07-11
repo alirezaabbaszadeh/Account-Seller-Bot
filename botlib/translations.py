@@ -95,6 +95,10 @@ TRANSLATIONS = {
         'en': 'Language updated.',
         'fa': 'زبان به روز شد.'
     },
+    'unsupported_language': {
+        'en': 'Unsupported language code.',
+        'fa': 'کد زبان پشتیبانی نمی‌شود.'
+    },
     'addproduct_usage': {
         'en': 'Usage: /addproduct <id> <price> <username> <password> <secret> [name]',
         'fa': 'استفاده: /addproduct <id> <price> <username> <password> <secret> [name]'
