@@ -39,3 +39,13 @@ def test_editproduct_updates_name():
     context = DummyContext(['p1', 'name', 'New', 'Name'])
     asyncio.run(editproduct(update, context))
     assert data['products']['p1']['name'] == 'New Name'
+
+
+def test_editproduct_unauthorized():
+    data['products'] = {
+        'p1': {'price': '1', 'username': 'u', 'password': 'p', 'secret': 's'}
+    }
+    update = DummyUpdate(5)
+    context = DummyContext(['p1', 'price', '2'])
+    asyncio.run(editproduct(update, context))
+    assert update.replies == ['Unauthorized']
