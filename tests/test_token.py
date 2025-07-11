@@ -1,9 +1,28 @@
 import sys
 from pathlib import Path
 import pytest
+import types
+import importlib.util
 
 import os
 os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")
+
+if importlib.util.find_spec("telegram") is None:
+    telegram = types.ModuleType("telegram")
+    dummy = type("_Dummy", (), {})
+    telegram.Update = dummy
+    telegram.InlineKeyboardButton = dummy
+    telegram.InlineKeyboardMarkup = dummy
+    ext = types.ModuleType("telegram.ext")
+    ext.Application = dummy
+    ext.CommandHandler = dummy
+    ext.ContextTypes = types.SimpleNamespace(DEFAULT_TYPE=dummy)
+    ext.MessageHandler = dummy
+    ext.filters = types.SimpleNamespace(PHOTO=None)
+    ext.CallbackQueryHandler = dummy
+    telegram.ext = ext
+    sys.modules["telegram"] = telegram
+    sys.modules["telegram.ext"] = ext
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from bot import get_bot_token  # noqa: E402
