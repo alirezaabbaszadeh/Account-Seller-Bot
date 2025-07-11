@@ -169,6 +169,21 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_data(data)
     await update.message.reply_text('Product updated')
 
+async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.from_user.id != ADMIN_ID:
+        return
+    try:
+        pid = context.args[0]
+    except IndexError:
+        await update.message.reply_text("Usage: /deleteproduct <id>")
+        return
+    if pid in data["products"]:
+        del data["products"][pid]
+        save_data(data)
+        await update.message.reply_text("Product deleted")
+    else:
+        await update.message.reply_text("Product not found")
+
 
 async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id != ADMIN_ID:
@@ -286,6 +301,7 @@ def main(token: str):
     app.add_handler(CommandHandler('code', code))
     app.add_handler(CommandHandler('addproduct', addproduct))
     app.add_handler(CommandHandler('editproduct', editproduct))
+    app.add_handler(CommandHandler('deleteproduct', deleteproduct))
     app.add_handler(CommandHandler('buyers', buyers))
     app.add_handler(CommandHandler('deletebuyer', deletebuyer))
     app.add_handler(CommandHandler('clearbuyers', clearbuyers))
