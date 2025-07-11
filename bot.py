@@ -82,6 +82,9 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo = update.message.photo[-1]
     file_id = photo.file_id
     data['pending'].append({'user_id': update.message.from_user.id, 'product_id': pid, 'file_id': file_id})
+    # Remove the pid after recording the pending payment so later photos aren't
+    # mistakenly associated with this purchase.
+    context.user_data.pop('buy_pid', None)
     save_data(data)
     await update.message.reply_text('Payment submitted. Wait for admin approval.')
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
