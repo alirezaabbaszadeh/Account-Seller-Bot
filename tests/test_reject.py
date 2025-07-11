@@ -38,3 +38,12 @@ def test_reject_removes_pending():
     context = DummyContext(['42', 'p1'])
     asyncio.run(reject(update, context))
     assert data['pending'] == []
+
+
+def test_reject_unauthorized():
+    data['pending'] = [{'user_id': 42, 'product_id': 'p1', 'file_id': 'f'}]
+    update = DummyUpdate(5)
+    context = DummyContext(['42', 'p1'])
+    asyncio.run(reject(update, context))
+    assert update.replies == ['Unauthorized']
+    assert data['pending'] == [{'user_id': 42, 'product_id': 'p1', 'file_id': 'f'}]

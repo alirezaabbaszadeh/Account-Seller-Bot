@@ -3,6 +3,7 @@ from pathlib import Path
 import types
 import asyncio
 import os
+import pytest
 
 os.environ.setdefault("ADMIN_ID", "1")
 os.environ.setdefault("ADMIN_PHONE", "+111")
@@ -74,3 +75,19 @@ def test_unknown_replies_help():
     context = DummyContext([])
     asyncio.run(unknown(update, context))
     assert update.replies == ['/help']
+
+
+@pytest.mark.parametrize(
+    "cmd,args",
+    [
+        (approve, ['2', 'p1']),
+        (deleteproduct, ['p1']),
+        (resend, ['p1']),
+    ],
+)
+def test_non_admin_gets_unauthorized(cmd, args):
+    data.setdefault('products', {'p1': {'price': '1', 'username': 'u', 'password': 'p', 'secret': 's', 'buyers': [2]}})
+    update = DummyUpdate(5)
+    context = DummyContext(args)
+    asyncio.run(cmd(update, context))
+    assert update.replies == ['Unauthorized']

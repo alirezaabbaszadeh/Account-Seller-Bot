@@ -15,3 +15,8 @@ def test_tr_product_not_found():
 
 def test_tr_default_english():
     assert tr('welcome', 'en') == 'Welcome! Use /products to list products.'
+
+
+def test_tr_unauthorized():
+    assert tr('unauthorized', 'en') == 'Unauthorized'
+    assert tr('unauthorized', 'fa') == 'اجازه دسترسی ندارید'
