@@ -52,9 +52,13 @@ Example adding a product with a name:
    ```
 
    Set the following environment variables **before running the bot**. The
-   application will exit if either is missing or invalid:
+   application will exit if any is missing or invalid:
    - `ADMIN_ID` – Telegram user ID of the admin (integer)
    - `ADMIN_PHONE` – phone number shown when users run `/contact`
+   - `FERNET_KEY` – encryption key for credentials (generate with
+     `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'`)
+   Keep this key secret and consistent. Changing it will make existing
+   `data.json` contents unreadable.
 3. Run the bot with your bot token. Pass it as an argument or via the
    `BOT_TOKEN` environment variable:
    ```bash

@@ -41,8 +41,13 @@ if not ADMIN_PHONE:
     logger.error("ADMIN_PHONE environment variable not set")
     raise SystemExit("ADMIN_PHONE environment variable not set")
 
+FERNET_KEY = os.environ.get("FERNET_KEY")
+if not FERNET_KEY:
+    logger.error("FERNET_KEY environment variable not set")
+    raise SystemExit("FERNET_KEY environment variable not set")
 
-storage = JSONStorage(DATA_FILE)
+
+storage = JSONStorage(DATA_FILE, FERNET_KEY.encode())
 data = asyncio.run(storage.load())
 data.setdefault('languages', {})
 
