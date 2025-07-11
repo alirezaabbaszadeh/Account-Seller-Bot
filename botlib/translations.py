@@ -35,6 +35,22 @@ TRANSLATIONS = {
         'en': 'Pending purchase not found.',
         'fa': 'خرید در انتظار یافت نشد.'
     },
+    'no_pending': {
+        'en': 'No pending purchases',
+        'fa': 'خرید در انتظاری وجود ندارد'
+    },
+    'pending_entry': {
+        'en': 'User {user_id} waiting for {product_id}',
+        'fa': 'کاربر {user_id} منتظر {product_id}'
+    },
+    'reject_usage': {
+        'en': 'Usage: /reject <user_id> <product_id>',
+        'fa': 'استفاده: /reject <user_id> <product_id>'
+    },
+    'rejected': {
+        'en': 'Purchase rejected.',
+        'fa': 'خرید رد شد.'
+    },
     'code_usage': {
         'en': 'Usage: /code <product_id>',
         'fa': 'استفاده: /code <product_id>'
@@ -194,6 +210,14 @@ TRANSLATIONS = {
     'help_admin_approve': {
         'en': '/approve <user_id> <product_id> - approve a pending purchase',
         'fa': '/approve <user_id> <product_id> - تایید خرید در انتظار'
+    },
+    'help_admin_reject': {
+        'en': '/reject <user_id> <product_id> - reject a pending purchase',
+        'fa': '/reject <user_id> <product_id> - رد خرید در انتظار'
+    },
+    'help_admin_pending': {
+        'en': '/pending - list pending purchases',
+        'fa': '/pending - لیست خریدهای در انتظار'
     },
     'help_admin_addproduct': {
         'en': '/addproduct <id> <price> <username> <password> <secret> [name] - add a product',
