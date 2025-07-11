@@ -20,11 +20,18 @@ from botlib.translations import tr
 # Store data.json in the same directory as this script
 DATA_FILE = Path(__file__).resolve().parent / 'data.json'
 try:
-    ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
+    ADMIN_ID = int(os.environ["ADMIN_ID"])
+except KeyError:
+    logging.error("ADMIN_ID environment variable not set")
+    raise SystemExit("ADMIN_ID environment variable not set")
 except ValueError as e:
     logging.error("ADMIN_ID must be an integer")
     raise SystemExit("ADMIN_ID must be an integer") from e
-ADMIN_PHONE = os.getenv("ADMIN_PHONE", "+989152062041")  # manager contact number
+
+ADMIN_PHONE = os.environ.get("ADMIN_PHONE")  # manager contact number
+if not ADMIN_PHONE:
+    logging.error("ADMIN_PHONE environment variable not set")
+    raise SystemExit("ADMIN_PHONE environment variable not set")
 
 logging.basicConfig(level=logging.INFO)
 
