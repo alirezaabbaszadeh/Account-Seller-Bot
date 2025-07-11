@@ -15,6 +15,15 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Users can get a list of all commands with `/help`.
 - Bot messages support both English and Farsi.
 
+### Changing language
+Users can switch their preferred language with:
+
+```bash
+/setlang <code>
+```
+
+Replace `<code>` with a language code such as `en` or `fa`.
+
 The `/addproduct` command accepts an optional `[name]` argument to label the product:
 
 ```bash
