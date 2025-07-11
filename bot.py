@@ -221,6 +221,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         user_id = int(context.args[0])
@@ -276,6 +277,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -305,6 +307,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -330,6 +333,7 @@ async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -349,6 +353,7 @@ async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -385,6 +390,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -411,6 +417,7 @@ async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     if not data['pending']:
         await update.message.reply_text(tr('no_pending', lang))
@@ -431,6 +438,7 @@ async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         user_id = int(context.args[0])
@@ -452,6 +460,7 @@ async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -474,6 +483,7 @@ async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]
@@ -498,6 +508,7 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
         return
     try:
         pid = context.args[0]

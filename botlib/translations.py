@@ -43,6 +43,10 @@ TRANSLATIONS = {
         'en': 'Approved.',
         'fa': 'تایید شد.'
     },
+    'unauthorized': {
+        'en': 'Unauthorized',
+        'fa': 'اجازه دسترسی ندارید'
+    },
     'pending_not_found': {
         'en': 'Pending purchase not found.',
         'fa': 'خرید در انتظار یافت نشد.'
