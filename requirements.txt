@@ -1,2 +1,4 @@
 python-telegram-bot==20.6
 pyotp
+flake8
+pytest
