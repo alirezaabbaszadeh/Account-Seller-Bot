@@ -60,7 +60,10 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('No products available')
         return
     for pid, info in data['products'].items():
-        text = f"{pid}: {info['price']}\n{info.get('name', '')}"
+        text = f"{pid}: {info['price']}"
+        name = info.get('name')
+        if name:
+            text += f"\n{name}"
         await update.message.reply_text(text, reply_markup=product_keyboard(pid))
 
 
@@ -140,8 +143,9 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         password = context.args[3]
         secret = context.args[4]
     except IndexError:
-        await update.message.reply_text('Usage: /addproduct <id> <price> <username> <password> <secret>')
+        await update.message.reply_text('Usage: /addproduct <id> <price> <username> <password> <secret> [name]')
         return
+    name = " ".join(context.args[5:]) if len(context.args) > 5 else None
     data['products'][pid] = {
         'price': price,
         'username': username,
@@ -149,6 +153,8 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'secret': secret,
         'buyers': []
     }
+    if name:
+        data['products'][pid]['name'] = name
     save_data(data)
     await update.message.reply_text('Product added')
 
