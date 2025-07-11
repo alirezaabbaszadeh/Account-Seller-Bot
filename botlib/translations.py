@@ -3,6 +3,18 @@ TRANSLATIONS = {
         'en': 'Welcome! Use /products to list products.',
         'fa': 'به بات خوش آمدید! برای مشاهده محصولات از /products استفاده کنید.'
     },
+    'menu_products': {
+        'en': 'Products',
+        'fa': 'محصولات'
+    },
+    'menu_contact': {
+        'en': 'Contact',
+        'fa': 'تماس'
+    },
+    'menu_help': {
+        'en': 'Help',
+        'fa': 'راهنما'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
