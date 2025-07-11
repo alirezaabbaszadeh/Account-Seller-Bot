@@ -216,7 +216,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         pid = context.args[0]
         field = context.args[1]
-        value = context.args[2]
+        value = " ".join(context.args[2:])
     except IndexError:
         await update.message.reply_text(tr('editproduct_usage', lang))
         return
@@ -224,7 +224,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not product:
         await update.message.reply_text(tr('product_not_found', lang))
         return
-    if field not in {'price', 'username', 'password', 'secret'}:
+    if field not in {'price', 'username', 'password', 'secret', 'name'}:
         await update.message.reply_text(tr('invalid_field', lang))
         return
     product[field] = value

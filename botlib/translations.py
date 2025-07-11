@@ -88,7 +88,7 @@ TRANSLATIONS = {
         'fa': 'محصول اضافه شد'
     },
     'editproduct_usage': {
-        'en': 'Usage: /editproduct <id> <field> <value>',
+        'en': 'Usage: /editproduct <id> <field> <value> (field: price, username, password, secret, name)',
         'fa': 'استفاده: /editproduct <id> <field> <value>'
     },
     'invalid_field': {
@@ -224,8 +224,8 @@ TRANSLATIONS = {
         'fa': '/addproduct <id> <price> <username> <password> <secret> [name] - افزودن محصول'
     },
     'help_admin_editproduct': {
-        'en': '/editproduct <id> <field> <value> - edit product information',
-        'fa': '/editproduct <id> <field> <value> - ویرایش اطلاعات محصول'
+        'en': '/editproduct <id> <field> <value> - edit product info (price, username, password, secret, name)',
+        'fa': '/editproduct <id> <field> <value> - ویرایش مشخصات محصول'
     },
     'help_admin_buyers': {
         'en': '/buyers <product_id> - list buyers of a product',
