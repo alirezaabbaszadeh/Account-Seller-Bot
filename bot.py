@@ -1,9 +1,9 @@
 # Telegram bot for managing product sales with TOTP support
-import json
 import logging
 import os
 import sys
 from pathlib import Path
+import asyncio
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -16,6 +16,7 @@ from telegram.ext import (
 )
 import pyotp
 from botlib.translations import tr
+from botlib.storage import JSONStorage
 
 # Store data.json in the same directory as this script
 DATA_FILE = Path(__file__).resolve().parent / 'data.json'
@@ -36,19 +37,8 @@ if not ADMIN_PHONE:
 logging.basicConfig(level=logging.INFO)
 
 
-def load_data():
-    if DATA_FILE.exists():
-        with open(DATA_FILE, 'r') as f:
-            return json.load(f)
-    return {'products': {}, 'pending': [], 'languages': {}}
-
-
-def save_data(data):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f, indent=2)
-
-
-data = load_data()
+storage = JSONStorage(DATA_FILE)
+data = asyncio.run(storage.load())
 data.setdefault('languages', {})
 
 
@@ -85,7 +75,7 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('setlang_usage', lang))
         return
     data.setdefault('languages', {})[str(update.effective_user.id)] = lang_code
-    save_data(data)
+    await storage.save(data)
     context.user_data['lang'] = lang_code
     await update.message.reply_text(tr('language_set', lang_code))
 
@@ -130,7 +120,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Remove the pid after recording the pending payment so later photos aren't
     # mistakenly associated with this purchase.
     context.user_data.pop('buy_pid', None)
-    save_data(data)
+    await storage.save(data)
     await update.message.reply_text(tr('payment_submitted', lang))
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
 
@@ -152,7 +142,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
             buyers = data['products'].setdefault(pid, {}).setdefault('buyers', [])
             if user_id not in buyers:
                 buyers.append(user_id)
-            save_data(data)
+            await storage.save(data)
             creds = data['products'][pid]
             msg = tr('credentials_msg', lang).format(
                 username=creds.get('username'),
@@ -212,7 +202,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }
     if name:
         data['products'][pid]['name'] = name
-    save_data(data)
+    await storage.save(data)
     await update.message.reply_text(tr('product_added', lang))
 
 
@@ -236,7 +226,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('invalid_field', lang))
         return
     product[field] = value
-    save_data(data)
+    await storage.save(data)
     await update.message.reply_text(tr('product_updated', lang))
 
 
@@ -252,7 +242,7 @@ async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     if pid in data["products"]:
         del data["products"][pid]
-        save_data(data)
+        await storage.save(data)
         await update.message.reply_text(tr('product_deleted', lang))
     else:
         await update.message.reply_text(tr('product_not_found', lang))
@@ -351,7 +341,7 @@ async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for p in data['pending']:
         if p['user_id'] == user_id and p['product_id'] == pid:
             data['pending'].remove(p)
-            save_data(data)
+            await storage.save(data)
             await update.message.reply_text(tr('rejected', lang))
             return
     await update.message.reply_text(tr('pending_not_found', lang))
@@ -395,7 +385,7 @@ async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     if uid in product.get('buyers', []):
         product['buyers'].remove(uid)
-        save_data(data)
+        await storage.save(data)
         await update.message.reply_text(tr('buyer_removed', lang))
     else:
         await update.message.reply_text(tr('buyer_not_found', lang))
@@ -416,7 +406,7 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('product_not_found', lang))
         return
     product['buyers'] = []
-    save_data(data)
+    await storage.save(data)
     await update.message.reply_text(tr('all_buyers_removed', lang))
 
 
