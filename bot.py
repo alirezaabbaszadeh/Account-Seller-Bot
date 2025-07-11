@@ -479,6 +479,13 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text)
 
 
+@log_command
+async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Reply to unrecognized commands."""
+    ensure_lang(context, update.effective_user.id)
+    await update.message.reply_text('/help')
+
+
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log unexpected errors with context information."""
     user_id = None
@@ -531,6 +538,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('resend', resend))
     app.add_handler(CommandHandler('stats', stats))
     app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(MessageHandler(filters.COMMAND, unknown))
 
     app.add_error_handler(error_handler)
 
