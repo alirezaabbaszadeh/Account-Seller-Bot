@@ -82,7 +82,14 @@ def log_command(func):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    await update.message.reply_text(tr('welcome', lang))
+    keyboard = [
+        [InlineKeyboardButton(tr('menu_products', lang), callback_data='menu:products')],
+        [InlineKeyboardButton(tr('menu_contact', lang), callback_data='menu:contact')],
+        [InlineKeyboardButton(tr('menu_help', lang), callback_data='menu:help')],
+    ]
+    await update.message.reply_text(
+        tr('welcome', lang), reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 
 @log_command
@@ -137,6 +144,58 @@ async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pid = query.data.split(':')[1]
     context.user_data['buy_pid'] = pid
     await query.message.reply_text(tr('send_proof', lang))
+
+
+@log_command
+async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle main menu buttons via callback queries."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    action = query.data.split(':')[1]
+    if action == 'products':
+        if not data['products']:
+            await query.message.reply_text(tr('no_products', lang))
+            return
+        for pid, info in data['products'].items():
+            text = f"{pid}: {info['price']}"
+            name = info.get('name')
+            if name:
+                text += f"\n{name}"
+            await query.message.reply_text(
+                text, reply_markup=product_keyboard(pid, lang)
+            )
+    elif action == 'contact':
+        await query.message.reply_text(
+            tr('admin_phone', lang).format(phone=ADMIN_PHONE)
+        )
+    elif action == 'help':
+        user_cmds = [
+            tr('help_user_start', lang),
+            tr('help_user_products', lang),
+            tr('help_user_code', lang),
+            tr('help_user_contact', lang),
+            tr('help_user_setlang', lang),
+            tr('help_user_help', lang),
+        ]
+        admin_cmds = [
+            tr('help_admin_approve', lang),
+            tr('help_admin_reject', lang),
+            tr('help_admin_pending', lang),
+            tr('help_admin_addproduct', lang),
+            tr('help_admin_editproduct', lang),
+            tr('help_admin_buyers', lang),
+            tr('help_admin_deletebuyer', lang),
+            tr('help_admin_clearbuyers', lang),
+            tr('help_admin_resend', lang),
+            tr('help_admin_stats', lang),
+        ]
+        text = tr('help_user_header', lang) + '\n' + '\n'.join(user_cmds)
+        text += '\n\n' + tr('help_admin_header', lang) + '\n' + '\n'.join(
+            admin_cmds
+        )
+        await query.message.reply_text(text)
 
 
 @log_command
@@ -528,6 +587,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('contact', contact))
     app.add_handler(CommandHandler('products', products))
     app.add_handler(CommandHandler('setlang', setlang))
+    app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
