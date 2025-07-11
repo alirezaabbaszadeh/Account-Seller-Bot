@@ -274,6 +274,27 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('All buyers removed')
 
 
+async def myorders(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """List product IDs purchased by the calling user."""
+    uid = update.message.from_user.id
+    orders = [pid for pid, prod in data['products'].items() if uid in prod.get('buyers', [])]
+    if not orders:
+        await update.message.reply_text('You have not purchased any products.')
+    else:
+        await update.message.reply_text('Your orders: ' + ', '.join(orders))
+
+
+async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """List pending payment proofs (admin only)."""
+    if update.message.from_user.id != ADMIN_ID:
+        return
+    if not data['pending']:
+        await update.message.reply_text('No pending purchases.')
+        return
+    lines = [f"user_id: {p['user_id']}, product_id: {p['product_id']}" for p in data['pending']]
+    await update.message.reply_text('\n'.join(lines))
+
+
 def main(token: str):
     app = Application.builder().token(token).build()
 
@@ -289,6 +310,8 @@ def main(token: str):
     app.add_handler(CommandHandler('buyers', buyers))
     app.add_handler(CommandHandler('deletebuyer', deletebuyer))
     app.add_handler(CommandHandler('clearbuyers', clearbuyers))
+    app.add_handler(CommandHandler('myorders', myorders))
+    app.add_handler(CommandHandler('pending', pending))
     app.add_handler(CommandHandler('resend', resend))
     app.add_handler(CommandHandler('stats', stats))
 
