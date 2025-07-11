@@ -182,6 +182,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_data(data)
     await update.message.reply_text('Product updated')
 
+
 async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id != ADMIN_ID:
         return
@@ -350,7 +351,6 @@ def main(token: str):
 
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) < 2:
         print('Usage: python bot.py <TOKEN>')
     else:

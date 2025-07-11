@@ -59,3 +59,11 @@ for the admin using `-e` flags:
 ```bash
 docker run --rm -e ADMIN_ID=<YOUR_ID> -e ADMIN_PHONE=<YOUR_PHONE> accounts-bot <TOKEN>
 ```
+
+## Development
+Run code style checks and tests with the following commands:
+
+```bash
+flake8
+pytest
+```
