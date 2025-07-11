@@ -19,6 +19,9 @@ import pyotp
 from botlib.translations import tr
 from botlib.storage import JSONStorage
 
+# Languages that can be used with /setlang
+SUPPORTED_LANGS = {"en", "fa"}
+
 logger = logging.getLogger("accounts_bot")
 logging.basicConfig(
     format="%(asctime)s %(name)s %(levelname)s: %(message)s",
@@ -109,6 +112,9 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lang_code = context.args[0].lower()
     except IndexError:
         await update.message.reply_text(tr('setlang_usage', lang))
+        return
+    if lang_code not in SUPPORTED_LANGS:
+        await update.message.reply_text(tr('unsupported_language', lang))
         return
     data.setdefault('languages', {})[str(update.effective_user.id)] = lang_code
     await storage.save(data)
