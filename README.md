@@ -13,6 +13,7 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
 - Users can get a list of all commands with `/help`.
+- Bot messages support both English and Farsi.
 
 The `/addproduct` command accepts an optional `[name]` argument to label the product:
 
