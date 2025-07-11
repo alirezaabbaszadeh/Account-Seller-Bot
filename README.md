@@ -12,6 +12,7 @@ This project contains a simple Telegram bot for selling products with manual pay
   `/resend`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
+- Users can view available commands with `/help`.
 
 ## Setup
 1. Install dependencies:

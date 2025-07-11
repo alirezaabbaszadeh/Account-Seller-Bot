@@ -6,7 +6,14 @@ import sys
 from pathlib import Path
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+    CallbackQueryHandler,
+)
 import pyotp
 
 DATA_FILE = Path('data.json')
@@ -274,6 +281,30 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('All buyers removed')
 
 
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Display available commands for users and admins."""
+    user_cmds = [
+        '/start - start the bot',
+        '/products - list available products',
+        '/code <product_id> - get authenticator code',
+        '/contact - view admin phone number',
+        '/help - show this message',
+    ]
+    admin_cmds = [
+        '/approve <user_id> <product_id> - approve a pending purchase',
+        '/addproduct <id> <price> <username> <password> <secret> - add a product',
+        '/editproduct <id> <field> <value> - edit product information',
+        '/buyers <product_id> - list buyers of a product',
+        '/deletebuyer <product_id> <user_id> - remove a buyer',
+        '/clearbuyers <product_id> - remove all buyers',
+        '/resend <product_id> [user_id] - resend credentials',
+        '/stats <product_id> - show product statistics',
+    ]
+    text = '*User commands*\n' + '\n'.join(user_cmds)
+    text += '\n\n*Admin commands*\n' + '\n'.join(admin_cmds)
+    await update.message.reply_text(text)
+
+
 def main(token: str):
     app = Application.builder().token(token).build()
 
@@ -291,6 +322,7 @@ def main(token: str):
     app.add_handler(CommandHandler('clearbuyers', clearbuyers))
     app.add_handler(CommandHandler('resend', resend))
     app.add_handler(CommandHandler('stats', stats))
+    app.add_handler(CommandHandler('help', help_command))
 
     app.run_polling()
 
