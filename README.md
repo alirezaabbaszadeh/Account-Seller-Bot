@@ -12,9 +12,9 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Admin can remove a product with `/deleteproduct <id>`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
-- Users can view available commands with `/help`.
+- Users can get a list of all commands with `/help`.
 
-The `/addproduct` command accepts an optional name parameter:
+The `/addproduct` command accepts an optional `[name]` argument to label the product:
 
 ```bash
 /addproduct <id> <price> <username> <password> <secret> [name]
