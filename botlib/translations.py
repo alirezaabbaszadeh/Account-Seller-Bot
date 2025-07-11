@@ -55,6 +55,14 @@ TRANSLATIONS = {
         'en': 'Code: {code}',
         'fa': 'کد: {code}'
     },
+    'setlang_usage': {
+        'en': 'Usage: /setlang <code>',
+        'fa': 'استفاده: /setlang <code>'
+    },
+    'language_set': {
+        'en': 'Language updated.',
+        'fa': 'زبان به روز شد.'
+    },
     'addproduct_usage': {
         'en': 'Usage: /addproduct <id> <price> <username> <password> <secret> [name]',
         'fa': 'استفاده: /addproduct <id> <price> <username> <password> <secret> [name]'
@@ -174,6 +182,10 @@ TRANSLATIONS = {
     'help_user_contact': {
         'en': '/contact - view admin phone number',
         'fa': '/contact - مشاهده شماره مدیر'
+    },
+    'help_user_setlang': {
+        'en': '/setlang <code> - change your language',
+        'fa': '/setlang <code> - تغییر زبان'
     },
     'help_user_help': {
         'en': '/help - show this message',

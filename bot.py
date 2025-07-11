@@ -67,6 +67,21 @@ async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('admin_phone', lang).format(phone=ADMIN_PHONE))
 
 
+async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Change the user's language preference."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    try:
+        lang_code = context.args[0].lower()
+    except IndexError:
+        await update.message.reply_text(tr('setlang_usage', lang))
+        return
+    data.setdefault('languages', {})[str(update.effective_user.id)] = lang_code
+    save_data(data)
+    context.user_data['lang'] = lang_code
+    await update.message.reply_text(tr('language_set', lang_code))
+
+
 def product_keyboard(product_id: str, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton(tr('buy_button', lang), callback_data=f'buy:{product_id}')]])
 
@@ -366,6 +381,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         tr('help_user_products', lang),
         tr('help_user_code', lang),
         tr('help_user_contact', lang),
+        tr('help_user_setlang', lang),
         tr('help_user_help', lang),
     ]
     admin_cmds = [
@@ -389,6 +405,7 @@ def main(token: str):
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('contact', contact))
     app.add_handler(CommandHandler('products', products))
+    app.add_handler(CommandHandler('setlang', setlang))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
