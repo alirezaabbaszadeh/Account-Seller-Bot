@@ -20,6 +20,12 @@ The `/addproduct` command accepts an optional name parameter:
 /addproduct <id> <price> <username> <password> <secret> [name]
 ```
 
+Example adding a product with a name:
+
+```bash
+/addproduct 1001 9.99 someuser somepass JBSWY3DPEHPK3PXP "My Product"
+```
+
 ## Setup
 1. Install dependencies:
    ```bash

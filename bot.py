@@ -26,6 +26,12 @@ ADMIN_PHONE = os.getenv("ADMIN_PHONE", "+989152062041")  # manager contact numbe
 
 logging.basicConfig(level=logging.INFO)
 
+MESSAGES = {
+    "en": {
+        "addproduct_usage": "Usage: /addproduct <id> <price> <username> <password> <secret> [name]",
+    }
+}
+
 
 def load_data():
     if DATA_FILE.exists():
@@ -146,7 +152,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         password = context.args[3]
         secret = context.args[4]
     except IndexError:
-        await update.message.reply_text('Usage: /addproduct <id> <price> <username> <password> <secret> [name]')
+        await update.message.reply_text(MESSAGES["en"]["addproduct_usage"])
         return
     name = " ".join(context.args[5:]) if len(context.args) > 5 else None
     data['products'][pid] = {
@@ -317,7 +323,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     admin_cmds = [
         '/approve <user_id> <product_id> - approve a pending purchase',
-        '/addproduct <id> <price> <username> <password> <secret> - add a product',
+        '/addproduct <id> <price> <username> <password> <secret> [name] - add a product',
         '/editproduct <id> <field> <value> - edit product information',
         '/buyers <product_id> - list buyers of a product',
         '/deletebuyer <product_id> <user_id> - remove a buyer',
