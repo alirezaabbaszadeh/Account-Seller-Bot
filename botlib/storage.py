@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_DATA = {"products": {}, "pending": [], "languages": {}}
 
 
@@ -24,7 +26,7 @@ class JSONStorage:
             except FileNotFoundError:
                 return DEFAULT_DATA.copy()
             except (OSError, json.JSONDecodeError) as exc:
-                logging.error("Failed to load %s: %s", self.path, exc)
+                logger.error("Failed to load %s: %s", self.path, exc)
                 return DEFAULT_DATA.copy()
 
     async def save(self, data: Dict[str, Any]) -> None:
@@ -36,7 +38,7 @@ class JSONStorage:
                     json.dump(data, fh, indent=2)
                 os.replace(tmp, self.path)
             except OSError as exc:
-                logging.error("Failed to save %s: %s", self.path, exc)
+                logger.error("Failed to save %s: %s", self.path, exc)
                 # Cleanup temp file on error
                 try:
                     tmp.unlink(missing_ok=True)
