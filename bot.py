@@ -1,5 +1,6 @@
 # Telegram bot for managing product sales with TOTP support
 import logging
+from functools import wraps
 import os
 import sys
 from pathlib import Path
@@ -18,23 +19,27 @@ import pyotp
 from botlib.translations import tr
 from botlib.storage import JSONStorage
 
+logger = logging.getLogger("accounts_bot")
+logging.basicConfig(
+    format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+    level=logging.INFO,
+)
+
 # Store data.json in the same directory as this script
 DATA_FILE = Path(__file__).resolve().parent / 'data.json'
 try:
     ADMIN_ID = int(os.environ["ADMIN_ID"])
 except KeyError:
-    logging.error("ADMIN_ID environment variable not set")
+    logger.error("ADMIN_ID environment variable not set")
     raise SystemExit("ADMIN_ID environment variable not set")
 except ValueError as e:
-    logging.error("ADMIN_ID must be an integer")
+    logger.error("ADMIN_ID must be an integer")
     raise SystemExit("ADMIN_ID must be an integer") from e
 
 ADMIN_PHONE = os.environ.get("ADMIN_PHONE")  # manager contact number
 if not ADMIN_PHONE:
-    logging.error("ADMIN_PHONE environment variable not set")
+    logger.error("ADMIN_PHONE environment variable not set")
     raise SystemExit("ADMIN_PHONE environment variable not set")
-
-logging.basicConfig(level=logging.INFO)
 
 
 storage = JSONStorage(DATA_FILE)
@@ -52,12 +57,30 @@ def ensure_lang(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
     context.user_data.setdefault('lang', user_lang(user_id))
 
 
+def log_command(func):
+    """Log user ID and command text before executing a handler."""
+    @wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        user_id = update.effective_user.id if update.effective_user else None
+        command = None
+        if update.message:
+            command = getattr(update.message, "text", None)
+        elif update.callback_query:
+            command = update.callback_query.data
+        logger.info("User %s invoked %s", user_id, command or func.__name__)
+        return await func(update, context, *args, **kwargs)
+
+    return wrapper
+
+
+@log_command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     await update.message.reply_text(tr('welcome', lang))
 
 
+@log_command
 async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send admin phone number."""
     ensure_lang(context, update.effective_user.id)
@@ -65,6 +88,7 @@ async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('admin_phone', lang).format(phone=ADMIN_PHONE))
 
 
+@log_command
 async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Change the user's language preference."""
     ensure_lang(context, update.effective_user.id)
@@ -84,6 +108,7 @@ def product_keyboard(product_id: str, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton(tr('buy_button', lang), callback_data=f'buy:{product_id}')]])
 
 
+@log_command
 async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -98,6 +123,7 @@ async def products(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(text, reply_markup=product_keyboard(pid, lang))
 
 
+@log_command
 async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -108,6 +134,7 @@ async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.message.reply_text(tr('send_proof', lang))
 
 
+@log_command
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -125,6 +152,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
 
 
+@log_command
 async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -155,6 +183,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('pending_not_found', lang))
 
 
+@log_command
 async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -178,6 +207,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('code_msg', lang).format(code=totp.now()))
 
 
+@log_command
 async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -206,6 +236,7 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('product_added', lang))
 
 
+@log_command
 async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -230,6 +261,7 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('product_updated', lang))
 
 
+@log_command
 async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -248,6 +280,7 @@ async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('product_not_found', lang))
 
 
+@log_command
 async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -283,6 +316,7 @@ async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('credentials_resent', lang))
 
 
+@log_command
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -307,6 +341,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text)
 
 
+@log_command
 async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """List all pending purchases for the admin."""
     ensure_lang(context, update.effective_user.id)
@@ -326,6 +361,7 @@ async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('\n'.join(lines))
 
 
+@log_command
 async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Reject a pending purchase without approving it."""
     ensure_lang(context, update.effective_user.id)
@@ -347,6 +383,7 @@ async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('pending_not_found', lang))
 
 
+@log_command
 async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -368,6 +405,7 @@ async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('no_buyers', lang))
 
 
+@log_command
 async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -391,6 +429,7 @@ async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(tr('buyer_not_found', lang))
 
 
+@log_command
 async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -410,6 +449,7 @@ async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(tr('all_buyers_removed', lang))
 
 
+@log_command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Display available commands for users and admins."""
     ensure_lang(context, update.effective_user.id)
@@ -437,6 +477,25 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = tr('help_user_header', lang) + '\n' + '\n'.join(user_cmds)
     text += '\n\n' + tr('help_admin_header', lang) + '\n' + '\n'.join(admin_cmds)
     await update.message.reply_text(text)
+
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log unexpected errors with context information."""
+    user_id = None
+    command = None
+    if isinstance(update, Update):
+        if update.effective_user:
+            user_id = update.effective_user.id
+        if update.message:
+            command = update.message.text
+        elif update.callback_query:
+            command = update.callback_query.data
+    logger.error(
+        "Unhandled exception for user %s command %s",
+        user_id,
+        command,
+        exc_info=context.error,
+    )
 
 
 def get_bot_token(token: str | None) -> str:
@@ -472,6 +531,8 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('resend', resend))
     app.add_handler(CommandHandler('stats', stats))
     app.add_handler(CommandHandler('help', help_command))
+
+    app.add_error_handler(error_handler)
 
     app.run_polling()
 
