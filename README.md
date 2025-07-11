@@ -108,3 +108,6 @@ Run code style checks and tests with the following commands:
 flake8
 pytest
 ```
+The unit tests require `python-telegram-bot`. Tests depending on it are skipped
+automatically when the package is missing so the suite can run without the
+dependency.
