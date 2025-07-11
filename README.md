@@ -12,6 +12,7 @@ This project contains a simple Telegram bot for selling products with manual pay
   `/resend`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
+- Users can change the bot language with `/setlanguage`.
 
 ## Setup
 1. Install dependencies:
@@ -23,16 +24,19 @@ This project contains a simple Telegram bot for selling products with manual pay
    If you prefer to create it manually, start with the following content:
 
    ```json
-   {"products": {}, "pending": []}
+   {"products": {}, "pending": [], "languages": {}}
    ```
 
    Set the following environment variables explicitly:
    - `ADMIN_ID` – Telegram user ID of the admin
    - `ADMIN_PHONE` – phone number shown when users run `/contact`
 3. Run the bot with your bot token:
-   ```bash
-   python bot.py <TOKEN>
-   ```
+```bash
+python bot.py <TOKEN>
+```
+
+### Language
+Use `/setlanguage en` to switch to English or `/setlanguage fa` for Persian.
 
 This is a minimal implementation and does not include persistent database storage or full error handling.
 
