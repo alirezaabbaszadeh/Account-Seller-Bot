@@ -7,6 +7,7 @@ from botlib.translations import tr
 ASK_ID, ASK_PRICE, ASK_USERNAME, ASK_PASSWORD, ASK_SECRET, ASK_NAME = range(6)
 CANCEL_TEXT = "Cancel"
 
+
 async def addproduct_menu(update, context):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data["lang"]
@@ -22,6 +23,7 @@ async def addproduct_menu(update, context):
     )
     return ASK_ID
 
+
 async def addproduct_id(update, context):
     lang = context.user_data["lang"]
     cancel_text = tr("cancel_button", lang)
@@ -34,6 +36,7 @@ async def addproduct_id(update, context):
         reply_markup=ReplyKeyboardMarkup([[cancel_text]], one_time_keyboard=True),
     )
     return ASK_PRICE
+
 
 async def addproduct_price(update, context):
     lang = context.user_data["lang"]
@@ -48,6 +51,7 @@ async def addproduct_price(update, context):
     )
     return ASK_USERNAME
 
+
 async def addproduct_username(update, context):
     lang = context.user_data["lang"]
     cancel_text = tr("cancel_button", lang)
@@ -60,6 +64,7 @@ async def addproduct_username(update, context):
         reply_markup=ReplyKeyboardMarkup([[cancel_text]], one_time_keyboard=True),
     )
     return ASK_PASSWORD
+
 
 async def addproduct_password(update, context):
     lang = context.user_data["lang"]
@@ -74,6 +79,7 @@ async def addproduct_password(update, context):
     )
     return ASK_SECRET
 
+
 async def addproduct_secret(update, context):
     lang = context.user_data["lang"]
     cancel_text = tr("cancel_button", lang)
@@ -86,6 +92,7 @@ async def addproduct_secret(update, context):
         reply_markup=ReplyKeyboardMarkup([[cancel_text]], one_time_keyboard=True),
     )
     return ASK_NAME
+
 
 async def addproduct_name(update, context):
     lang = context.user_data["lang"]
@@ -108,6 +115,7 @@ async def addproduct_name(update, context):
     context.user_data.pop("new_product", None)
     await update.message.reply_text(tr("product_added", lang), reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
+
 
 async def addproduct_cancel(update, context):
     lang = context.user_data.get("lang", "en")
