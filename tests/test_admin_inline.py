@@ -12,7 +12,15 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import admin_callback, admin_menu_callback, menu_callback, start, data, ADMIN_ID  # noqa: E402
+from bot import (  # noqa: E402
+    admin_callback,
+    admin_menu_callback,
+    menu_callback,
+    start,
+    addproduct,
+    data,
+    ADMIN_ID,
+)
 from botlib.translations import tr  # noqa: E402
 
 
@@ -113,8 +121,12 @@ def test_adminmenu_addproduct_usage():
     update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
     context = DummyContext()
     asyncio.run(admin_menu_callback(update, context))
-    text, _ = update.replies[0]
-    assert text == tr('addproduct_usage', 'en')
+
+    msg_update = DummyMessageUpdate(ADMIN_ID)
+    msg_context = DummyContext()
+    asyncio.run(addproduct(msg_update, msg_context))
+    text, _ = msg_update.replies[0]
+    assert text == tr('ask_product_id', 'en')
 
 
 def test_adminmenu_pending_list():
