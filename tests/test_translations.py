@@ -54,3 +54,10 @@ def test_tr_edit_flow_strings():
     assert tr('select_field_edit', 'fa') == 'فیلد مورد نظر برای ویرایش را انتخاب کنید:'
     assert tr('enter_new_value', 'en') == 'Enter new value:'
     assert tr('enter_new_value', 'fa') == 'مقدار جدید را وارد کنید:'
+
+
+def test_tr_new_menu_strings():
+    assert tr('menu_buyers', 'en') == 'Buyers'
+    assert tr('menu_clearbuyers', 'fa') == 'پاک‌سازی خریداران'
+    assert tr('delete_button', 'en') == 'Delete'
+    assert tr('select_product_stats', 'en').startswith('Select a product')
