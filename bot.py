@@ -428,6 +428,9 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id != ADMIN_ID:
         await update.message.reply_text(tr('unauthorized', lang))
         return
+    if not context.args:
+        await update.message.reply_text(tr('ask_product_id', lang))
+        return
     try:
         pid = context.args[0]
         price = context.args[1]
