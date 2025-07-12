@@ -113,8 +113,7 @@ def test_admin_submenu_button():
     assert text == tr('menu_admin', 'en')
     buttons = [btn.text for row in markup.inline_keyboard for btn in row]
     assert tr('menu_pending', 'en') in buttons
-    assert tr('menu_addproduct', 'en') in buttons
-    assert tr('menu_editproduct', 'en') in buttons
+    assert tr('menu_manage_products', 'en') in buttons
     assert tr('menu_stats', 'en') in buttons
 
 
@@ -157,7 +156,7 @@ def test_adminmenu_editproduct_buttons():
     ]
     assert 'editprod:p1' in callbacks
     assert 'editprod:p2' in callbacks
-    assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'
+    assert markup.inline_keyboard[-1][0].callback_data == 'adminmenu:manage'
 
 
 def test_adminmenu_editproduct_no_products():

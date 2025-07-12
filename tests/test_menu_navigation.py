@@ -13,7 +13,7 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # noqa: E402
-from bot import menu_callback, data, ADMIN_ID  # noqa: E402
+from bot import menu_callback, admin_menu_callback, data, ADMIN_ID  # noqa: E402
 from botlib.translations import tr  # noqa: E402
 
 
@@ -123,6 +123,19 @@ def test_admin_menu_for_admin():
     assert text == tr('menu_admin', 'en')
     buttons = [btn.text for row in markup.inline_keyboard for btn in row]
     assert tr('menu_pending', 'en') in buttons
-    assert tr('menu_addproduct', 'en') in buttons
-    assert tr('menu_editproduct', 'en') in buttons
+    assert tr('menu_manage_products', 'en') in buttons
     assert tr('menu_stats', 'en') in buttons
+
+
+def test_manage_products_submenu():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('menu_manage_products', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert 'adminmenu:addproduct' in callbacks
+    assert 'adminmenu:editproduct' in callbacks
+    assert 'adminmenu:deleteproduct' in callbacks
+    assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'

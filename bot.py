@@ -133,11 +133,43 @@ def build_back_menu(lang: str) -> InlineKeyboardMarkup:
 def build_admin_menu(lang: str) -> InlineKeyboardMarkup:
     """Return the admin submenu keyboard."""
     keyboard = [
-        [InlineKeyboardButton(tr('menu_pending', lang), callback_data='adminmenu:pending')],
-        [InlineKeyboardButton(tr('menu_addproduct', lang), callback_data='adminmenu:addproduct')],
-        [InlineKeyboardButton(tr('menu_editproduct', lang), callback_data='adminmenu:editproduct')],
+        [
+            InlineKeyboardButton(
+                tr('menu_pending', lang), callback_data='adminmenu:pending'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                tr('menu_manage_products', lang),
+                callback_data='adminmenu:manage',
+            )
+        ],
         [InlineKeyboardButton(tr('menu_stats', lang), callback_data='adminmenu:stats')],
         [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:main')],
+    ]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def build_products_menu(lang: str) -> InlineKeyboardMarkup:
+    """Return submenu for managing products."""
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                tr('menu_addproduct', lang), callback_data='adminmenu:addproduct'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                tr('menu_editproduct', lang), callback_data='adminmenu:editproduct'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                tr('menu_deleteproduct', lang),
+                callback_data='adminmenu:deleteproduct',
+            )
+        ],
+        [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:admin')],
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -284,24 +316,43 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             await query.message.reply_text(
                 text, reply_markup=InlineKeyboardMarkup([buttons])
             )
+    elif action == 'manage':
+        await query.message.reply_text(
+            tr('menu_manage_products', lang), reply_markup=build_products_menu(lang)
+        )
     elif action == 'addproduct':
-        await query.message.reply_text(tr('addproduct_usage', lang))
+        await query.message.reply_text(
+            tr('addproduct_usage', lang),
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+            ),
+        )
     elif action == 'editproduct':
         if not data['products']:
-            await query.message.reply_text(tr('no_products', lang))
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
             return
         keyboard = [
             [InlineKeyboardButton(pid, callback_data=f"editprod:{pid}")]
             for pid in data['products']
         ]
         keyboard.append([
-            InlineKeyboardButton(
-                tr('menu_back', lang), callback_data='menu:admin'
-            )
+            InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')
         ])
         await query.message.reply_text(
             tr('select_product_edit', lang),
             reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+    elif action == 'deleteproduct':
+        await query.message.reply_text(
+            tr('deleteproduct_usage', lang),
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+            ),
         )
     elif action == 'stats':
         await query.message.reply_text(tr('stats_usage', lang))
