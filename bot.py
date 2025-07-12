@@ -308,6 +308,27 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 @log_command
+async def editprod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show field selection buttons for editing a product."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    pid = query.data.split(':')[1]
+    buttons = [
+        [InlineKeyboardButton('price', callback_data=f'editfield:{pid}:price')],
+        [InlineKeyboardButton('username', callback_data=f'editfield:{pid}:username')],
+        [InlineKeyboardButton('password', callback_data=f'editfield:{pid}:password')],
+        [InlineKeyboardButton('secret', callback_data=f'editfield:{pid}:secret')],
+        [InlineKeyboardButton('name', callback_data=f'editfield:{pid}:name')],
+    ]
+    await query.message.reply_text(
+        tr('editproduct_usage', lang),
+        reply_markup=InlineKeyboardMarkup(buttons),
+    )
+
+
+@log_command
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -772,6 +793,7 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
+    app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
     app.add_handler(CommandHandler('reject', reject))
