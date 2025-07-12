@@ -27,6 +27,18 @@ TRANSLATIONS = {
         'en': 'Back',
         'fa': 'بازگشت'
     },
+    'menu_addproduct': {
+        'en': 'Add product',
+        'fa': 'افزودن محصول'
+    },
+    'menu_editproduct': {
+        'en': 'Edit product',
+        'fa': 'ویرایش محصول'
+    },
+    'menu_stats': {
+        'en': 'Stats',
+        'fa': 'آمار'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
