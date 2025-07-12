@@ -23,7 +23,15 @@ TRANSLATIONS = {
         'en': 'Admin',
         'fa': 'مدیریت'
     },
+    'menu_main': {
+        'en': 'Main menu',
+        'fa': 'منوی اصلی'
+    },
     'menu_back': {
+        'en': 'Back',
+        'fa': 'بازگشت'
+    },
+    'back_button': {
         'en': 'Back',
         'fa': 'بازگشت'
     },
