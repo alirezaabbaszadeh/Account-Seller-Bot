@@ -29,8 +29,7 @@ from bot import (  # noqa: E402
     data,
     ADMIN_ID,
 )
-from telegram.ext import ConversationHandler
-from botlib.translations import tr
+from telegram.ext import ConversationHandler  # noqa: E402
 
 
 class DummyBot:
@@ -141,4 +140,3 @@ def test_addproduct_name_skip(tmp_path):
     result = asyncio.run(addproduct_name(name_update, context))
     assert result == ConversationHandler.END
     assert 'name' not in data['products']['p1']
-
