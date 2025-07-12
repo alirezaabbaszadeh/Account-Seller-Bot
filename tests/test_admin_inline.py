@@ -12,7 +12,7 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import admin_callback, start, data, ADMIN_ID  # noqa: E402
+from bot import admin_callback, menu_callback, start, data, ADMIN_ID  # noqa: E402
 from botlib.translations import tr  # noqa: E402
 
 
@@ -91,6 +91,17 @@ def test_start_admin_keyboard():
     context = DummyContext()
     asyncio.run(start(update, context))
     markup = update.replies[0][1]
+    assert any(
+        btn.text == tr('menu_admin', 'en') for row in markup.inline_keyboard for btn in row
+    )
+
+
+def test_admin_submenu_button():
+    update = DummyCallbackUpdate(ADMIN_ID, 'menu:admin')
+    context = DummyContext()
+    asyncio.run(menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('menu_admin', 'en')
     assert any(
         btn.text == tr('menu_pending', 'en') for row in markup.inline_keyboard for btn in row
     )

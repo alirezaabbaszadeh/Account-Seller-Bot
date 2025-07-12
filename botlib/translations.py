@@ -19,6 +19,14 @@ TRANSLATIONS = {
         'en': 'Pending',
         'fa': 'در انتظار'
     },
+    'menu_admin': {
+        'en': 'Admin',
+        'fa': 'مدیریت'
+    },
+    'menu_back': {
+        'en': 'Back',
+        'fa': 'بازگشت'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'

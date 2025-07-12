@@ -86,15 +86,9 @@ def log_command(func):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    keyboard = [
-        [InlineKeyboardButton(tr('menu_products', lang), callback_data='menu:products')],
-        [InlineKeyboardButton(tr('menu_contact', lang), callback_data='menu:contact')],
-        [InlineKeyboardButton(tr('menu_help', lang), callback_data='menu:help')],
-    ]
-    if update.effective_user.id == ADMIN_ID:
-        keyboard.append([InlineKeyboardButton(tr('menu_pending', lang), callback_data='admin:pending')])
     await update.message.reply_text(
-        tr('welcome', lang), reply_markup=InlineKeyboardMarkup(keyboard)
+        tr('welcome', lang),
+        reply_markup=build_main_menu(lang, update.effective_user.id == ADMIN_ID),
     )
 
 
@@ -127,6 +121,34 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def product_keyboard(product_id: str, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton(tr('buy_button', lang), callback_data=f'buy:{product_id}')]])
+
+
+def build_back_menu(lang: str) -> InlineKeyboardMarkup:
+    """Return a markup with a single back button."""
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:main')]]
+    )
+
+
+def build_admin_menu(lang: str) -> InlineKeyboardMarkup:
+    """Return the admin submenu keyboard."""
+    keyboard = [
+        [InlineKeyboardButton(tr('menu_pending', lang), callback_data='admin:pending')],
+        [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:main')],
+    ]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def build_main_menu(lang: str, is_admin: bool = False) -> InlineKeyboardMarkup:
+    """Return the main menu keyboard."""
+    keyboard = [
+        [InlineKeyboardButton(tr('menu_products', lang), callback_data='menu:products')],
+        [InlineKeyboardButton(tr('menu_contact', lang), callback_data='menu:contact')],
+        [InlineKeyboardButton(tr('menu_help', lang), callback_data='menu:help')],
+    ]
+    if is_admin:
+        keyboard.append([InlineKeyboardButton(tr('menu_admin', lang), callback_data='menu:admin')])
+    return InlineKeyboardMarkup(keyboard)
 
 
 @log_command
@@ -163,9 +185,16 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     action = query.data.split(':')[1]
-    if action == 'products':
+    if action == 'main':
+        await query.message.reply_text(
+            tr('welcome', lang),
+            reply_markup=build_main_menu(lang, query.from_user.id == ADMIN_ID),
+        )
+    elif action == 'products':
         if not data['products']:
-            await query.message.reply_text(tr('no_products', lang))
+            await query.message.reply_text(
+                tr('no_products', lang), reply_markup=build_back_menu(lang)
+            )
             return
         for pid, info in data['products'].items():
             text = f"{pid}: {info['price']}"
@@ -175,9 +204,13 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text(
                 text, reply_markup=product_keyboard(pid, lang)
             )
+        await query.message.reply_text(
+            tr('menu_back', lang), reply_markup=build_back_menu(lang)
+        )
     elif action == 'contact':
         await query.message.reply_text(
-            tr('admin_phone', lang).format(phone=ADMIN_PHONE)
+            tr('admin_phone', lang).format(phone=ADMIN_PHONE),
+            reply_markup=build_back_menu(lang),
         )
     elif action == 'help':
         user_cmds = [
@@ -204,7 +237,16 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += '\n\n' + tr('help_admin_header', lang) + '\n' + '\n'.join(
             admin_cmds
         )
-        await query.message.reply_text(text)
+        await query.message.reply_text(text, reply_markup=build_back_menu(lang))
+    elif action == 'admin':
+        if query.from_user.id != ADMIN_ID:
+            await query.message.reply_text(
+                tr('unauthorized', lang), reply_markup=build_back_menu(lang)
+            )
+            return
+        await query.message.reply_text(
+            tr('menu_admin', lang), reply_markup=build_admin_menu(lang)
+        )
 
 
 @log_command
