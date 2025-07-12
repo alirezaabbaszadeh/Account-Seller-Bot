@@ -15,6 +15,8 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Users can view the admin phone number with `/contact`.
 - Users can get a list of all commands with `/help`.
 - Bot messages support both English and Farsi.
+- پشتیبانی از منوهای سلسله‌مراتبی با دکمه‌های تلگرامی.
+- دکمه «بازگشت» و دکمه‌های جدید مدیریتی به منو افزوده شده‌اند.
 
 ### Changing language
 Users can switch their preferred language with:
@@ -66,8 +68,22 @@ Example adding a product with a name:
    ```bash
    python bot.py <TOKEN>
    # or
-   BOT_TOKEN=<TOKEN> python bot.py
-   ```
+BOT_TOKEN=<TOKEN> python bot.py
+```
+
+### ناوبری منوها
+پس از اجرای ربات با دستور `/start`، منوی اصلی نمایش داده می‌شود که شامل دکمه‌های «محصولات»، «تماس» و «راهنما» است. اگر کاربر مدیر باشد، گزینه «مدیریت» نیز دیده می‌شود. برای ورود به هر بخش روی دکمه مربوطه بزنید و در هر مرحله با دکمه «بازگشت» می‌توانید به مرحله قبل بروید.
+
+**مثال کاربر**
+1. ارسال `/start`
+2. انتخاب «محصولات» برای مشاهده لیست حساب‌ها
+3. فشردن «بازگشت» جهت بازگشت به منوی اصلی
+
+**مثال مدیر**
+1. ارسال `/start`
+2. انتخاب «مدیریت»
+3. انتخاب «در انتظار» برای بررسی خریدهای معلق
+4. بازگشت به منوی اصلی با دکمه «بازگشت»
 
 This is a minimal implementation and does not include persistent database storage or full error handling.
 
