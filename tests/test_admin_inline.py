@@ -12,7 +12,7 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import admin_callback, menu_callback, start, data, ADMIN_ID  # noqa: E402
+from bot import admin_callback, admin_menu_callback, menu_callback, start, data, ADMIN_ID  # noqa: E402
 from botlib.translations import tr  # noqa: E402
 
 
@@ -102,6 +102,26 @@ def test_admin_submenu_button():
     asyncio.run(menu_callback(update, context))
     text, markup = update.replies[0]
     assert text == tr('menu_admin', 'en')
-    assert any(
-        btn.text == tr('menu_pending', 'en') for row in markup.inline_keyboard for btn in row
-    )
+    buttons = [btn.text for row in markup.inline_keyboard for btn in row]
+    assert tr('menu_pending', 'en') in buttons
+    assert tr('menu_addproduct', 'en') in buttons
+    assert tr('menu_editproduct', 'en') in buttons
+    assert tr('menu_stats', 'en') in buttons
+
+
+def test_adminmenu_addproduct_usage():
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, _ = update.replies[0]
+    assert text == tr('addproduct_usage', 'en')
+
+
+def test_adminmenu_pending_list():
+    data['pending'] = [{'user_id': 2, 'product_id': 'p1', 'file_id': 'f'}]
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:pending')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert tr('pending_entry', 'en').format(user_id=2, product_id='p1') == text
+    assert markup.inline_keyboard[0][0].text == tr('approve_button', 'en')

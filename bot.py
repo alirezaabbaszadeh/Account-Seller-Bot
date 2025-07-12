@@ -133,7 +133,10 @@ def build_back_menu(lang: str) -> InlineKeyboardMarkup:
 def build_admin_menu(lang: str) -> InlineKeyboardMarkup:
     """Return the admin submenu keyboard."""
     keyboard = [
-        [InlineKeyboardButton(tr('menu_pending', lang), callback_data='admin:pending')],
+        [InlineKeyboardButton(tr('menu_pending', lang), callback_data='adminmenu:pending')],
+        [InlineKeyboardButton(tr('menu_addproduct', lang), callback_data='adminmenu:addproduct')],
+        [InlineKeyboardButton(tr('menu_editproduct', lang), callback_data='adminmenu:editproduct')],
+        [InlineKeyboardButton(tr('menu_stats', lang), callback_data='adminmenu:stats')],
         [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:main')],
     ]
     return InlineKeyboardMarkup(keyboard)
@@ -247,6 +250,46 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text(
             tr('menu_admin', lang), reply_markup=build_admin_menu(lang)
         )
+
+
+@log_command
+async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle buttons in the admin submenu."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    action = query.data.split(':')[1]
+    if update.effective_user.id != ADMIN_ID:
+        await query.message.reply_text(tr('unauthorized', lang))
+        return
+    if action == 'pending':
+        if not data['pending']:
+            await query.message.reply_text(tr('no_pending', lang))
+            return
+        for p in data['pending']:
+            text = tr('pending_entry', lang).format(
+                user_id=p['user_id'], product_id=p['product_id']
+            )
+            buttons = [
+                InlineKeyboardButton(
+                    tr('approve_button', lang),
+                    callback_data=f"admin:approve:{p['user_id']}:{p['product_id']}"
+                ),
+                InlineKeyboardButton(
+                    tr('reject_button', lang),
+                    callback_data=f"admin:reject:{p['user_id']}:{p['product_id']}"
+                ),
+            ]
+            await query.message.reply_text(
+                text, reply_markup=InlineKeyboardMarkup([buttons])
+            )
+    elif action == 'addproduct':
+        await query.message.reply_text(tr('addproduct_usage', lang))
+    elif action == 'editproduct':
+        await query.message.reply_text(tr('editproduct_usage', lang))
+    elif action == 'stats':
+        await query.message.reply_text(tr('stats_usage', lang))
 
 
 @log_command
@@ -709,6 +752,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('setlang', setlang))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
+    app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
