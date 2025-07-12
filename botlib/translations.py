@@ -75,6 +75,10 @@ TRANSLATIONS = {
         'en': 'Enter product name:',
         'fa': 'نام محصول را وارد کنید:'
     },
+    'ask_new_value': {
+        'en': 'Enter new value:',
+        'fa': 'مقدار جدید را وارد کنید:'
+    },
     'cancel_button': {
         'en': 'Cancel',
         'fa': 'لغو'
