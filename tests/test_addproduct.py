@@ -53,4 +53,3 @@ def test_addproduct_duplicate_not_overwritten():
     assert data['products']['p1']['username'] == 'u'
     assert data['products']['p1']['password'] == 'p'
     assert data['products']['p1']['secret'] == 's'
-

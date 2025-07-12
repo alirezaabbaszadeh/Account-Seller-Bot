@@ -1,4 +1,4 @@
-# accounts-Automator
+# Account-Seller-Bot
 
 This project contains a simple Telegram bot for selling products with manual payment approval and two-factor authentication codes.
 
