@@ -35,3 +35,12 @@ def test_tr_menu_main():
 def test_tr_back_button():
     assert tr('back_button', 'en') == 'Back'
     assert tr('back_button', 'fa') == 'بازگشت'
+
+
+def test_tr_edit_flow_strings():
+    assert tr('select_product_edit', 'en') == 'Select a product to edit:'
+    assert tr('select_product_edit', 'fa') == 'محصول مورد نظر برای ویرایش را انتخاب کنید:'
+    assert tr('select_field_edit', 'en') == 'Select a field to edit:'
+    assert tr('select_field_edit', 'fa') == 'فیلد مورد نظر برای ویرایش را انتخاب کنید:'
+    assert tr('enter_new_value', 'en') == 'Enter new value:'
+    assert tr('enter_new_value', 'fa') == 'مقدار جدید را وارد کنید:'
