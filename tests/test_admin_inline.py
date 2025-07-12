@@ -149,7 +149,7 @@ def test_adminmenu_editproduct_buttons():
     context = DummyContext()
     asyncio.run(admin_menu_callback(update, context))
     text, markup = update.replies[0]
-    assert text == tr('menu_editproduct', 'en')
+    assert text == tr('select_product_edit', 'en')
     callbacks = [
         btn.callback_data
         for row in markup.inline_keyboard

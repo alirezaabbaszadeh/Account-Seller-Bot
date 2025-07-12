@@ -187,13 +187,25 @@ TRANSLATIONS = {
         'en': 'Product added',
         'fa': 'محصول اضافه شد'
     },
+    'select_product_edit': {
+        'en': 'Select a product to edit:',
+        'fa': 'محصول مورد نظر برای ویرایش را انتخاب کنید:'
+    },
     'editproduct_usage': {
         'en': 'Usage: /editproduct <id> <field> <value> (field: price, username, password, secret, name)',
         'fa': 'استفاده: /editproduct <id> <field> <value>'
     },
+    'select_field_edit': {
+        'en': 'Select a field to edit:',
+        'fa': 'فیلد مورد نظر برای ویرایش را انتخاب کنید:'
+    },
     'invalid_field': {
         'en': 'Invalid field',
         'fa': 'فیلد نامعتبر'
+    },
+    'enter_new_value': {
+        'en': 'Enter new value:',
+        'fa': 'مقدار جدید را وارد کنید:'
     },
     'product_updated': {
         'en': 'Product updated',
