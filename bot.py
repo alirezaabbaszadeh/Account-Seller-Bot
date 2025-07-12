@@ -14,6 +14,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
     CallbackQueryHandler,
+    ConversationHandler,
 )
 import pyotp
 from botlib.translations import tr
@@ -21,6 +22,11 @@ from botlib.storage import JSONStorage
 
 # Languages that can be used with /setlang
 SUPPORTED_LANGS = {"en", "fa"}
+
+# Conversation state constants for /addproduct via menu
+ADD_PID, ADD_PRICE, ADD_USERNAME, ADD_PASSWORD, ADD_SECRET, ADD_NAME = range(6)
+
+BACK_TEXTS = {tr('back_button', 'en'), tr('back_button', 'fa')}
 
 logger = logging.getLogger("accounts_bot")
 logging.basicConfig(
@@ -422,6 +428,125 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+async def addproduct_start_conv(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Begin conversation to add a new product via menu."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    if update.effective_user.id != ADMIN_ID:
+        await query.message.reply_text(tr('unauthorized', lang))
+        return ConversationHandler.END
+    context.user_data['new_product'] = {}
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await query.message.reply_text(tr('addproduct_pid', lang), reply_markup=markup)
+    return ADD_PID
+
+
+@log_command
+async def addproduct_pid(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    pid = update.message.text.strip()
+    if pid in data['products']:
+        await update.message.reply_text(tr('product_exists', lang))
+        return ADD_PID
+    context.user_data['new_product']['pid'] = pid
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await update.message.reply_text(tr('addproduct_price', lang), reply_markup=markup)
+    return ADD_PRICE
+
+
+@log_command
+async def addproduct_price(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    context.user_data['new_product']['price'] = update.message.text.strip()
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await update.message.reply_text(tr('addproduct_username', lang), reply_markup=markup)
+    return ADD_USERNAME
+
+
+@log_command
+async def addproduct_username(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    context.user_data['new_product']['username'] = update.message.text.strip()
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await update.message.reply_text(tr('addproduct_password', lang), reply_markup=markup)
+    return ADD_PASSWORD
+
+
+@log_command
+async def addproduct_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    context.user_data['new_product']['password'] = update.message.text.strip()
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await update.message.reply_text(tr('addproduct_secret', lang), reply_markup=markup)
+    return ADD_SECRET
+
+
+@log_command
+async def addproduct_secret(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    context.user_data['new_product']['secret'] = update.message.text.strip()
+    markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('back_button', lang), callback_data='cancel')]]
+    )
+    await update.message.reply_text(tr('addproduct_name', lang), reply_markup=markup)
+    return ADD_NAME
+
+
+@log_command
+async def addproduct_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    name = update.message.text.strip()
+    if name:
+        context.user_data['new_product']['name'] = name
+    info = context.user_data.pop('new_product', {})
+    pid = info.pop('pid')
+    data['products'][pid] = {
+        'price': info.get('price'),
+        'username': info.get('username'),
+        'password': info.get('password'),
+        'secret': info.get('secret'),
+        'buyers': []
+    }
+    if info.get('name'):
+        data['products'][pid]['name'] = info['name']
+    await storage.save(data)
+    await update.message.reply_text(tr('product_added', lang))
+    return ConversationHandler.END
+
+
+@log_command
+async def addproduct_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    context.user_data.pop('new_product', None)
+    if update.callback_query:
+        await update.callback_query.answer()
+        msg = update.callback_query.message
+    else:
+        msg = update.message
+    await msg.reply_text(tr('operation_cancelled', lang))
+    return ConversationHandler.END
+
+
+@log_command
 async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -752,6 +877,24 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('setlang', setlang))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
+
+    cancel_regex = rf"^({'|'.join(BACK_TEXTS)})$"
+    conv_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(addproduct_start_conv, pattern=r'^adminmenu:addproduct$')],
+        states={
+            ADD_PID: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_pid)],
+            ADD_PRICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_price)],
+            ADD_USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_username)],
+            ADD_PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_password)],
+            ADD_SECRET: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_secret)],
+            ADD_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, addproduct_name)],
+        },
+        fallbacks=[
+            MessageHandler(filters.Regex(cancel_regex), addproduct_cancel),
+            CallbackQueryHandler(addproduct_cancel, pattern='^cancel$'),
+        ],
+    )
+    app.add_handler(conv_handler)
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))

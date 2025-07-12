@@ -12,7 +12,16 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import admin_callback, admin_menu_callback, menu_callback, start, data, ADMIN_ID  # noqa: E402
+from bot import (
+    admin_callback,
+    admin_menu_callback,
+    menu_callback,
+    start,
+    addproduct_start_conv,
+    ADD_PID,
+    data,
+    ADMIN_ID,
+)
 from botlib.translations import tr  # noqa: E402
 
 
@@ -52,7 +61,7 @@ class DummyContext:
 
 
 class DummyMessageUpdate:
-    def __init__(self, user_id):
+    def __init__(self, user_id, text=""):
         self.replies = []
 
         async def reply(text, reply_markup=None):
@@ -61,6 +70,7 @@ class DummyMessageUpdate:
         self.message = types.SimpleNamespace(
             from_user=types.SimpleNamespace(id=user_id),
             reply_text=reply,
+            text=text,
         )
         self.effective_user = self.message.from_user
 
@@ -109,12 +119,13 @@ def test_admin_submenu_button():
     assert tr('menu_stats', 'en') in buttons
 
 
-def test_adminmenu_addproduct_usage():
+def test_adminmenu_addproduct_start():
     update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
     context = DummyContext()
-    asyncio.run(admin_menu_callback(update, context))
+    state = asyncio.run(addproduct_start_conv(update, context))
     text, _ = update.replies[0]
-    assert text == tr('addproduct_usage', 'en')
+    assert state == ADD_PID
+    assert text == tr('addproduct_pid', 'en')
 
 
 def test_adminmenu_pending_list():

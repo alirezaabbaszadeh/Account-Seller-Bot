@@ -143,6 +143,30 @@ TRANSLATIONS = {
         'en': 'Usage: /addproduct <id> <price> <username> <password> <secret> [name]',
         'fa': 'استفاده: /addproduct <id> <price> <username> <password> <secret> [name]'
     },
+    'addproduct_pid': {
+        'en': 'Send product id',
+        'fa': 'شناسه محصول را ارسال کنید'
+    },
+    'addproduct_price': {
+        'en': 'Send price',
+        'fa': 'قیمت را ارسال کنید'
+    },
+    'addproduct_username': {
+        'en': 'Send username',
+        'fa': 'نام کاربری را ارسال کنید'
+    },
+    'addproduct_password': {
+        'en': 'Send password',
+        'fa': 'رمز عبور را ارسال کنید'
+    },
+    'addproduct_secret': {
+        'en': 'Send TOTP secret',
+        'fa': 'کد TOTP را ارسال کنید'
+    },
+    'addproduct_name': {
+        'en': 'Send name or - to skip',
+        'fa': 'نام را ارسال کنید یا - برای خالی'
+    },
     'product_exists': {
         'en': 'Product already exists',
         'fa': 'محصول از قبل وجود دارد'
@@ -186,6 +210,10 @@ TRANSLATIONS = {
     'credentials_resent': {
         'en': 'Credentials resent',
         'fa': 'اطلاعات ورود دوباره ارسال شد'
+    },
+    'operation_cancelled': {
+        'en': 'Cancelled.',
+        'fa': 'لغو شد.'
     },
     'credentials_msg': {
         'en': 'Username: {username}\nPassword: {password}',
