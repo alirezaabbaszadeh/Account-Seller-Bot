@@ -175,6 +175,9 @@ def build_products_menu(lang: str) -> InlineKeyboardMarkup:
                 callback_data='adminmenu:deleteproduct',
             )
         ],
+        [InlineKeyboardButton(tr('menu_stats', lang), callback_data='adminmenu:stats')],
+        [InlineKeyboardButton(tr('menu_buyers', lang), callback_data='adminmenu:buyers')],
+        [InlineKeyboardButton(tr('menu_clearbuyers', lang), callback_data='adminmenu:clearbuyers')],
         [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:admin')],
     ]
     return InlineKeyboardMarkup(keyboard)
@@ -384,7 +387,53 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             ),
         )
     elif action == 'stats':
-        await query.message.reply_text(tr('stats_usage', lang))
+        if not data['products']:
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
+            return
+        keyboard = [[InlineKeyboardButton(pid, callback_data=f"adminstats:{pid}")]
+                    for pid in data['products']]
+        keyboard.append([InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')])
+        await query.message.reply_text(
+            tr('select_product_stats', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+    elif action == 'buyers':
+        if not data['products']:
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
+            return
+        keyboard = [[InlineKeyboardButton(pid, callback_data=f"buyerlist:{pid}")]
+                    for pid in data['products']]
+        keyboard.append([InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')])
+        await query.message.reply_text(
+            tr('select_product_buyers', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+    elif action == 'clearbuyers':
+        if not data['products']:
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
+            return
+        keyboard = [[InlineKeyboardButton(pid, callback_data=f"adminclearbuyers:{pid}")]
+                    for pid in data['products']]
+        keyboard.append([InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')])
+        await query.message.reply_text(
+            tr('select_product_clearbuyers', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
 
 
 @log_command
@@ -469,6 +518,71 @@ async def handle_edit_value(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+async def stats_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show product statistics from inline menu."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    pid = query.data.split(':')[1]
+    product = data['products'].get(pid)
+    if not product:
+        await query.message.reply_text(tr('product_not_found', lang))
+        return
+    buyers = product.get('buyers', [])
+    text = "\n".join(
+        [
+            tr('price_line', lang).format(price=product.get('price')),
+            tr('total_buyers_line', lang).format(count=len(buyers)),
+        ]
+    )
+    await query.message.reply_text(text)
+
+
+@log_command
+async def buyerlist_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """List buyers with delete buttons."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    pid = query.data.split(':')[1]
+    product = data['products'].get(pid)
+    if not product:
+        await query.message.reply_text(tr('product_not_found', lang))
+        return
+    buyers = product.get('buyers', [])
+    if not buyers:
+        await query.message.reply_text(tr('no_buyers', lang))
+        return
+    for uid in buyers:
+        buttons = [
+            InlineKeyboardButton(
+                tr('delete_button', lang),
+                callback_data=f'admin:deletebuyer:{pid}:{uid}',
+            )
+        ]
+        await query.message.reply_text(str(uid), reply_markup=InlineKeyboardMarkup([buttons]))
+
+
+@log_command
+async def clearbuyers_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Remove all buyers of a product via inline menu."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    pid = query.data.split(':')[1]
+    product = data['products'].get(pid)
+    if not product:
+        await query.message.reply_text(tr('product_not_found', lang))
+        return
+    product['buyers'] = []
+    await storage.save(data)
+    await query.message.reply_text(tr('all_buyers_removed', lang))
+
+
+@log_command
 async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle admin inline actions like listing and approving pending purchases."""
     ensure_lang(context, update.effective_user.id)
@@ -525,6 +639,22 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await query.message.reply_text(tr('rejected', lang))
                 return
         await query.message.reply_text(tr('pending_not_found', lang))
+    elif action == 'deletebuyer':
+        try:
+            pid = parts[2]
+            uid = int(parts[3])
+        except (IndexError, ValueError):
+            return
+        product = data['products'].get(pid)
+        if not product:
+            await query.message.reply_text(tr('product_not_found', lang))
+            return
+        if uid in product.get('buyers', []):
+            product['buyers'].remove(uid)
+            await storage.save(data)
+            await query.message.reply_text(tr('buyer_removed', lang))
+        else:
+            await query.message.reply_text(tr('buyer_not_found', lang))
 
 
 @log_command
@@ -927,6 +1057,9 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(CallbackQueryHandler(code_callback, pattern=r'^code:'))
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
+    app.add_handler(CallbackQueryHandler(stats_callback, pattern=r'^adminstats:'))
+    app.add_handler(CallbackQueryHandler(buyerlist_callback, pattern=r'^buyerlist:'))
+    app.add_handler(CallbackQueryHandler(clearbuyers_callback, pattern=r'^adminclearbuyers:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
     app.add_handler(CallbackQueryHandler(editfield_callback, pattern=r'^editfield:'))

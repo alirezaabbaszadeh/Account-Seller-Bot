@@ -55,6 +55,14 @@ TRANSLATIONS = {
         'en': 'Stats',
         'fa': 'آمار'
     },
+    'menu_buyers': {
+        'en': 'Buyers',
+        'fa': 'خریداران'
+    },
+    'menu_clearbuyers': {
+        'en': 'Clear buyers',
+        'fa': 'پاک‌سازی خریداران'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
@@ -151,6 +159,10 @@ TRANSLATIONS = {
         'en': 'Reject',
         'fa': 'رد'
     },
+    'delete_button': {
+        'en': 'Delete',
+        'fa': 'حذف'
+    },
     'code_usage': {
         'en': 'Usage: /code <product_id>',
         'fa': 'استفاده: /code <product_id>'
@@ -198,6 +210,18 @@ TRANSLATIONS = {
     'select_product_edit': {
         'en': 'Select a product to edit:',
         'fa': 'محصول مورد نظر برای ویرایش را انتخاب کنید:'
+    },
+    'select_product_stats': {
+        'en': 'Select a product to view stats:',
+        'fa': 'محصول مورد نظر برای مشاهده آمار را انتخاب کنید:'
+    },
+    'select_product_buyers': {
+        'en': 'Select a product to list buyers:',
+        'fa': 'محصول مورد نظر برای مشاهده خریداران را انتخاب کنید:'
+    },
+    'select_product_clearbuyers': {
+        'en': 'Select a product to clear buyers:',
+        'fa': 'محصول مورد نظر برای پاک‌سازی خریداران را انتخاب کنید:'
     },
     'editproduct_usage': {
         'en': 'Usage: /editproduct <id> <field> <value> (field: price, username, password, secret, name)',

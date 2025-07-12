@@ -15,6 +15,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from bot import (  # noqa: E402
     admin_callback,
     admin_menu_callback,
+    stats_callback,
+    buyerlist_callback,
+    clearbuyers_callback,
     editprod_callback,
     menu_callback,
     start,
@@ -187,3 +190,33 @@ def test_editprod_field_buttons():
         'editfield:p1:name',
     }
     assert expected.issubset(set(callbacks))
+
+
+def test_adminmenu_stats_buttons():
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:stats')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_stats', 'en')
+    assert markup.inline_keyboard[0][0].callback_data == 'adminstats:p1'
+
+
+def test_adminmenu_buyers_buttons():
+    data['products'] = {'p1': {'price': '1', 'buyers': [2]}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:buyers')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_buyers', 'en')
+    assert markup.inline_keyboard[0][0].callback_data == 'buyerlist:p1'
+
+
+def test_buyerlist_callback_delete_button():
+    data['products'] = {'p1': {'price': '1', 'buyers': [2]}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'buyerlist:p1')
+    context = DummyContext()
+    asyncio.run(buyerlist_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == '2'
+    assert markup.inline_keyboard[0][0].text == tr('delete_button', 'en')
