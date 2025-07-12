@@ -63,6 +63,10 @@ TRANSLATIONS = {
         'en': 'Clear buyers',
         'fa': 'پاک‌سازی خریداران'
     },
+    'menu_resend': {
+        'en': 'Resend credentials',
+        'fa': 'ارسال مجدد اطلاعات'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
