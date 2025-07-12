@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from bot import (  # noqa: E402
     admin_callback,
     admin_menu_callback,
+    editprod_callback,
     menu_callback,
     start,
     addproduct,
@@ -166,3 +167,24 @@ def test_adminmenu_editproduct_no_products():
     asyncio.run(admin_menu_callback(update, context))
     text, _ = update.replies[0]
     assert text == tr('no_products', 'en')
+
+
+def test_editprod_field_buttons():
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'editprod:p1')
+    context = DummyContext()
+    asyncio.run(editprod_callback(update, context))
+    _, markup = update.replies[0]
+    callbacks = [
+        btn.callback_data
+        for row in markup.inline_keyboard
+        for btn in row
+    ]
+    expected = {
+        'editfield:p1:price',
+        'editfield:p1:username',
+        'editfield:p1:password',
+        'editfield:p1:secret',
+        'editfield:p1:name',
+    }
+    assert expected.issubset(set(callbacks))
