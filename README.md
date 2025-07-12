@@ -4,6 +4,7 @@ This project contains a simple Telegram bot for selling products with manual pay
 
 ## Features
 - Admin can add products with price, credentials, TOTP secret, and an optional name.
+- Admin can add products through the admin menu with a guided conversation.
 - Users can browse products and submit payment proof.
 - Admin approves purchases and credentials are sent to the buyer.
 - Buyers can obtain a current authenticator code with `/code <product_id>`.

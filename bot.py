@@ -514,7 +514,7 @@ async def addproduct_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     name = update.message.text.strip()
-    if name:
+    if name and name != '-':
         context.user_data['new_product']['name'] = name
     info = context.user_data.pop('new_product', {})
     pid = info.pop('pid')

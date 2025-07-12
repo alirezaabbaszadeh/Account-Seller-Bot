@@ -117,3 +117,28 @@ def test_addproduct_conversation_flow(tmp_path):
     assert 'p42' in data['products']
     assert data['products']['p42']['price'] == '9.99'
 
+
+def test_addproduct_name_skip(tmp_path):
+    data['products'] = {}
+    context = DummyContext()
+    context.user_data['lang'] = 'en'
+    start_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
+    asyncio.run(addproduct_start_conv(start_update, context))
+
+    steps = [
+        (addproduct_pid, 'p1', ADD_PRICE),
+        (addproduct_price, '10', ADD_USERNAME),
+        (addproduct_username, 'u', ADD_PASSWORD),
+        (addproduct_password, 'p', ADD_SECRET),
+        (addproduct_secret, 's', ADD_NAME),
+    ]
+    for func, text, state in steps:
+        upd = DummyMessageUpdate(ADMIN_ID, text)
+        result = asyncio.run(func(upd, context))
+        assert result == state
+
+    name_update = DummyMessageUpdate(ADMIN_ID, '-')
+    result = asyncio.run(addproduct_name(name_update, context))
+    assert result == ConversationHandler.END
+    assert 'name' not in data['products']['p1']
+
