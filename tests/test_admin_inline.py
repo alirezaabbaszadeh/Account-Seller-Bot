@@ -137,3 +137,32 @@ def test_adminmenu_pending_list():
     text, markup = update.replies[0]
     assert tr('pending_entry', 'en').format(user_id=2, product_id='p1') == text
     assert markup.inline_keyboard[0][0].text == tr('approve_button', 'en')
+
+
+def test_adminmenu_editproduct_buttons():
+    data['products'] = {
+        'p1': {'price': '1'},
+        'p2': {'price': '2'},
+    }
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:editproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('menu_editproduct', 'en')
+    callbacks = [
+        btn.callback_data
+        for row in markup.inline_keyboard
+        for btn in row
+    ]
+    assert 'editprod:p1' in callbacks
+    assert 'editprod:p2' in callbacks
+    assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'
+
+
+def test_adminmenu_editproduct_no_products():
+    data['products'] = {}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:editproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, _ = update.replies[0]
+    assert text == tr('no_products', 'en')
