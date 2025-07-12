@@ -21,7 +21,7 @@ class DummyBot:
     def __init__(self):
         self.sent = []
 
-    async def send_message(self, uid, text, reply_markup=None):
+    async def send_message(self, uid, text, *args, **kwargs):
         self.sent.append((uid, text))
 
 
