@@ -287,7 +287,22 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
     elif action == 'addproduct':
         await query.message.reply_text(tr('addproduct_usage', lang))
     elif action == 'editproduct':
-        await query.message.reply_text(tr('editproduct_usage', lang))
+        if not data['products']:
+            await query.message.reply_text(tr('no_products', lang))
+            return
+        keyboard = [
+            [InlineKeyboardButton(pid, callback_data=f"editprod:{pid}")]
+            for pid in data['products']
+        ]
+        keyboard.append([
+            InlineKeyboardButton(
+                tr('menu_back', lang), callback_data='menu:admin'
+            )
+        ])
+        await query.message.reply_text(
+            tr('menu_editproduct', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
     elif action == 'stats':
         await query.message.reply_text(tr('stats_usage', lang))
 
