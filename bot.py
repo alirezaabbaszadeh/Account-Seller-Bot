@@ -178,6 +178,7 @@ def build_products_menu(lang: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(tr('menu_stats', lang), callback_data='adminmenu:stats')],
         [InlineKeyboardButton(tr('menu_buyers', lang), callback_data='adminmenu:buyers')],
         [InlineKeyboardButton(tr('menu_clearbuyers', lang), callback_data='adminmenu:clearbuyers')],
+        [InlineKeyboardButton(tr('menu_resend', lang), callback_data='adminmenu:resend')],
         [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:admin')],
     ]
     return InlineKeyboardMarkup(keyboard)

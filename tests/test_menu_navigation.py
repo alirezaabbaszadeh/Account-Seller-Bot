@@ -141,6 +141,7 @@ def test_manage_products_submenu():
     assert 'adminmenu:stats' in callbacks
     assert 'adminmenu:buyers' in callbacks
     assert 'adminmenu:clearbuyers' in callbacks
+    assert 'adminmenu:resend' in callbacks
     assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'
 
 def test_adminmenu_addproduct_usage():
