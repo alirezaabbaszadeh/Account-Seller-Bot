@@ -20,3 +20,18 @@ def test_tr_default_english():
 def test_tr_unauthorized():
     assert tr('unauthorized', 'en') == 'Unauthorized'
     assert tr('unauthorized', 'fa') == 'اجازه دسترسی ندارید'
+
+
+def test_tr_menu_admin():
+    assert tr('menu_admin', 'en') == 'Admin'
+    assert tr('menu_admin', 'fa') == 'مدیریت'
+
+
+def test_tr_menu_main():
+    assert tr('menu_main', 'en') == 'Main menu'
+    assert tr('menu_main', 'fa') == 'منوی اصلی'
+
+
+def test_tr_back_button():
+    assert tr('back_button', 'en') == 'Back'
+    assert tr('back_button', 'fa') == 'بازگشت'
