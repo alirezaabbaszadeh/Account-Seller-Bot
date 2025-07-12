@@ -153,6 +153,13 @@ def test_adminmenu_addproduct_usage():
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks == ['adminmenu:manage']
 
+    # Simulate pressing the back button
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
+
 
 def test_adminmenu_editproduct_usage():
     data['languages'] = {}
@@ -165,6 +172,12 @@ def test_adminmenu_editproduct_usage():
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
 
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
+
 
 def test_adminmenu_deleteproduct_usage():
     data['languages'] = {}
@@ -175,6 +188,12 @@ def test_adminmenu_deleteproduct_usage():
     assert text == tr('deleteproduct_usage', 'en')
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks == ['adminmenu:manage']
+
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
 
 
 def test_adminmenu_stats_usage():
@@ -188,6 +207,12 @@ def test_adminmenu_stats_usage():
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
 
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
+
 
 def test_adminmenu_buyers_usage():
     data['languages'] = {}
@@ -200,6 +225,12 @@ def test_adminmenu_buyers_usage():
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
 
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
+
 
 def test_adminmenu_clearbuyers_usage():
     data['languages'] = {}
@@ -211,3 +242,9 @@ def test_adminmenu_clearbuyers_usage():
     assert text == tr('select_product_clearbuyers', 'en')
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
+
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')
