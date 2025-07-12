@@ -37,6 +37,16 @@ def test_tr_back_button():
     assert tr('back_button', 'fa') == 'بازگشت'
 
 
+def test_tr_code_button():
+    assert tr('code_button', 'en') == 'Get code'
+    assert tr('code_button', 'fa') == 'دریافت کد'
+
+
+def test_tr_use_code_button():
+    assert 'Press the button' in tr('use_code_button', 'en')
+    assert tr('use_code_button', 'fa').startswith('برای دریافت')
+
+
 def test_tr_edit_flow_strings():
     assert tr('select_product_edit', 'en') == 'Select a product to edit:'
     assert tr('select_product_edit', 'fa') == 'محصول مورد نظر برای ویرایش را انتخاب کنید:'

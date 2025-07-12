@@ -123,6 +123,12 @@ def product_keyboard(product_id: str, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton(tr('buy_button', lang), callback_data=f'buy:{product_id}')]])
 
 
+def code_keyboard(pid: str, lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton(tr('code_button', lang), callback_data=f'code:{pid}')]]
+    )
+
+
 def build_back_menu(lang: str) -> InlineKeyboardMarkup:
     """Return a markup with a single back button."""
     return InlineKeyboardMarkup(
@@ -485,7 +491,11 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     creds = data['products'][pid]
                     msg = tr('credentials_msg', lang).format(username=creds.get('username'), password=creds.get('password'))
                     await context.bot.send_message(user_id, msg)
-                    await context.bot.send_message(user_id, tr('use_code_hint', lang).format(pid=pid))
+                    await context.bot.send_message(
+                        user_id,
+                        tr('use_code_button', lang),
+                        reply_markup=code_keyboard(pid, lang),
+                    )
                     await query.message.reply_text(tr('approved', lang))
                 else:
                     await storage.save(data)
@@ -520,7 +530,11 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 password=creds.get('password'),
             )
             await context.bot.send_message(user_id, msg)
-            await context.bot.send_message(user_id, tr('use_code_hint', lang).format(pid=pid))
+            await context.bot.send_message(
+                user_id,
+                tr('use_code_button', lang),
+                reply_markup=code_keyboard(pid, lang),
+            )
             await update.message.reply_text(tr('approved', lang))
             return
     await update.message.reply_text(tr('pending_not_found', lang))
@@ -665,7 +679,11 @@ async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     for uid in buyers:
         await context.bot.send_message(uid, msg)
-        await context.bot.send_message(uid, tr('use_code_hint', lang).format(pid=pid))
+        await context.bot.send_message(
+            uid,
+            tr('use_code_button', lang),
+            reply_markup=code_keyboard(pid, lang),
+        )
     await update.message.reply_text(tr('credentials_resent', lang))
 
 

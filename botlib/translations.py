@@ -251,6 +251,14 @@ TRANSLATIONS = {
         'en': 'Use /code {pid} to get your current authenticator code.',
         'fa': 'برای دریافت کد احراز هویت، از /code {pid} استفاده کنید.'
     },
+    'code_button': {
+        'en': 'Get code',
+        'fa': 'دریافت کد'
+    },
+    'use_code_button': {
+        'en': 'Press the button to get your current authenticator code.',
+        'fa': 'برای دریافت کد احراز هویت، دکمه را بزنید.'
+    },
     'stats_usage': {
         'en': 'Usage: /stats <product_id>',
         'fa': 'استفاده: /stats <product_id>'
