@@ -329,6 +329,22 @@ async def editprod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+async def editfield_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Prompt admin to send new value for the selected field."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    try:
+        _, pid, field = query.data.split(':', 2)
+    except ValueError:
+        return
+    context.user_data['edit_pid'] = pid
+    context.user_data['edit_field'] = field
+    await query.message.reply_text(tr('ask_new_value', lang))
+
+
+@log_command
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
@@ -344,6 +360,32 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await storage.save(data)
     await update.message.reply_text(tr('payment_submitted', lang))
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
+
+
+@log_command
+async def handle_edit_value(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Update product field when awaiting new value from admin."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    pid = context.user_data.get('edit_pid')
+    field = context.user_data.get('edit_field')
+    if not pid or not field:
+        return
+    if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text(tr('unauthorized', lang))
+        context.user_data.pop('edit_pid', None)
+        context.user_data.pop('edit_field', None)
+        return
+    value = update.message.text
+    product = data['products'].get(pid)
+    if product is not None:
+        product[field] = value
+        await storage.save(data)
+        await update.message.reply_text(tr('product_updated', lang))
+    else:
+        await update.message.reply_text(tr('product_not_found', lang))
+    context.user_data.pop('edit_pid', None)
+    context.user_data.pop('edit_field', None)
 
 
 @log_command
@@ -794,6 +836,7 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
+    app.add_handler(CallbackQueryHandler(editfield_callback, pattern=r'^editfield:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
     app.add_handler(CommandHandler('reject', reject))
@@ -808,6 +851,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('resend', resend))
     app.add_handler(CommandHandler('stats', stats))
     app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_edit_value))
     app.add_handler(MessageHandler(filters.COMMAND, unknown))
 
     app.add_error_handler(error_handler)
