@@ -43,6 +43,14 @@ TRANSLATIONS = {
         'en': 'Edit product',
         'fa': 'ویرایش محصول'
     },
+    'menu_deleteproduct': {
+        'en': 'Delete product',
+        'fa': 'حذف محصول'
+    },
+    'menu_manage_products': {
+        'en': 'Manage products',
+        'fa': 'مدیریت محصولات'
+    },
     'menu_stats': {
         'en': 'Stats',
         'fa': 'آمار'

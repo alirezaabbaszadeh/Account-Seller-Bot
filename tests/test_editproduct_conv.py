@@ -12,8 +12,8 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 
 pytest.importorskip("telegram")
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # noqa: E402
+from bot import (  # noqa: E402
     admin_menu_callback,
     editprod_callback,
     editfield_callback,
@@ -22,7 +22,7 @@ from bot import (
     storage,
     ADMIN_ID,
 )
-from botlib.translations import tr
+from botlib.translations import tr  # noqa: E402
 
 
 class DummyCallbackUpdate:

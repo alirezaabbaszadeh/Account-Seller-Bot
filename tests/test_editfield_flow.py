@@ -11,8 +11,8 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 
 pytest.importorskip("telegram")
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from bot import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # noqa: E402
+from bot import (  # noqa: E402
     editfield_callback,
     handle_edit_value,
     data,
