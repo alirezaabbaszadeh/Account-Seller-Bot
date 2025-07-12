@@ -249,3 +249,21 @@ def test_adminmenu_clearbuyers_usage():
     asyncio.run(admin_menu_callback(back_update, back_context))
     back_text, _ = back_update.replies[0]
     assert back_text == tr('menu_manage_products', 'en')
+
+
+def test_adminmenu_resend_usage():
+    data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:resend')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_buyers', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks.count('adminmenu:manage') == 1
+
+    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
+    back_context = DummyContext()
+    asyncio.run(admin_menu_callback(back_update, back_context))
+    back_text, _ = back_update.replies[0]
+    assert back_text == tr('menu_manage_products', 'en')

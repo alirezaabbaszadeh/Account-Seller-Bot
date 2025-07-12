@@ -435,6 +435,22 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             tr('select_product_clearbuyers', lang),
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
+    elif action == 'resend':
+        if not data['products']:
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
+            return
+        keyboard = [[InlineKeyboardButton(pid, callback_data=f"adminresend:{pid}")]
+                    for pid in data['products']]
+        keyboard.append([InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')])
+        await query.message.reply_text(
+            tr('select_product_buyers', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
 
 
 @log_command
