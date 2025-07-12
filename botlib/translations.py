@@ -51,6 +51,34 @@ TRANSLATIONS = {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
     },
+    'ask_product_id': {
+        'en': 'Enter product ID:',
+        'fa': 'شناسه محصول را وارد کنید:'
+    },
+    'ask_product_price': {
+        'en': 'Enter price:',
+        'fa': 'قیمت را وارد کنید:'
+    },
+    'ask_product_username': {
+        'en': 'Enter username:',
+        'fa': 'نام کاربری را وارد کنید:'
+    },
+    'ask_product_password': {
+        'en': 'Enter password:',
+        'fa': 'رمز عبور را وارد کنید:'
+    },
+    'ask_product_secret': {
+        'en': 'Enter TOTP secret:',
+        'fa': 'رمز TOTP را وارد کنید:'
+    },
+    'ask_product_name': {
+        'en': 'Enter product name:',
+        'fa': 'نام محصول را وارد کنید:'
+    },
+    'cancel_button': {
+        'en': 'Cancel',
+        'fa': 'لغو'
+    },
     'buy_button': {
         'en': 'Buy',
         'fa': 'خرید'
