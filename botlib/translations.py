@@ -127,6 +127,10 @@ TRANSLATIONS = {
         'en': 'Purchase rejected.',
         'fa': 'خرید رد شد.'
     },
+    'operation_cancelled': {
+        'en': 'Operation cancelled.',
+        'fa': 'عملیات لغو شد.'
+    },
     'approve_button': {
         'en': 'Approve',
         'fa': 'تایید'
