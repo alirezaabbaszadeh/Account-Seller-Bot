@@ -142,3 +142,72 @@ def test_manage_products_submenu():
     assert 'adminmenu:buyers' in callbacks
     assert 'adminmenu:clearbuyers' in callbacks
     assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'
+
+def test_adminmenu_addproduct_usage():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('addproduct_usage', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks == ['adminmenu:manage']
+
+
+def test_adminmenu_editproduct_usage():
+    data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:editproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_edit', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks.count('adminmenu:manage') == 1
+
+
+def test_adminmenu_deleteproduct_usage():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:deleteproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('deleteproduct_usage', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks == ['adminmenu:manage']
+
+
+def test_adminmenu_stats_usage():
+    data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:stats')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_stats', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks.count('adminmenu:manage') == 1
+
+
+def test_adminmenu_buyers_usage():
+    data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:buyers')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_buyers', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks.count('adminmenu:manage') == 1
+
+
+def test_adminmenu_clearbuyers_usage():
+    data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:clearbuyers')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('select_product_clearbuyers', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert callbacks.count('adminmenu:manage') == 1
