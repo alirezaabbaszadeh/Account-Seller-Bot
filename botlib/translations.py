@@ -15,6 +15,10 @@ TRANSLATIONS = {
         'en': 'Help',
         'fa': 'راهنما'
     },
+    'menu_pending': {
+        'en': 'Pending',
+        'fa': 'در انتظار'
+    },
     'admin_phone': {
         'en': 'Admin phone: {phone}',
         'fa': 'شماره مدیر: {phone}'
@@ -66,6 +70,14 @@ TRANSLATIONS = {
     'rejected': {
         'en': 'Purchase rejected.',
         'fa': 'خرید رد شد.'
+    },
+    'approve_button': {
+        'en': 'Approve',
+        'fa': 'تایید'
+    },
+    'reject_button': {
+        'en': 'Reject',
+        'fa': 'رد'
     },
     'code_usage': {
         'en': 'Usage: /code <product_id>',

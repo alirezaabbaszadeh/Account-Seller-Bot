@@ -90,6 +90,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(tr('menu_contact', lang), callback_data='menu:contact')],
         [InlineKeyboardButton(tr('menu_help', lang), callback_data='menu:help')],
     ]
+    if update.effective_user.id == ADMIN_ID:
+        keyboard.append([InlineKeyboardButton(tr('menu_pending', lang), callback_data='admin:pending')])
     await update.message.reply_text(
         tr('welcome', lang), reply_markup=InlineKeyboardMarkup(keyboard)
     )
@@ -220,6 +222,61 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await storage.save(data)
     await update.message.reply_text(tr('payment_submitted', lang))
     await context.bot.send_photo(ADMIN_ID, file_id, caption=f"/approve {update.message.from_user.id} {pid}")
+
+
+@log_command
+async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle admin inline actions like listing and approving pending purchases."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    parts = query.data.split(':')
+    action = parts[1]
+    if update.effective_user.id != ADMIN_ID:
+        await query.message.reply_text(tr('unauthorized', lang))
+        return
+    if action == 'pending':
+        if not data['pending']:
+            await query.message.reply_text(tr('no_pending', lang))
+            return
+        for p in data['pending']:
+            text = tr('pending_entry', lang).format(user_id=p['user_id'], product_id=p['product_id'])
+            buttons = [
+                InlineKeyboardButton(
+                    tr('approve_button', lang),
+                    callback_data=f"admin:approve:{p['user_id']}:{p['product_id']}"
+                ),
+                InlineKeyboardButton(
+                    tr('reject_button', lang),
+                    callback_data=f"admin:reject:{p['user_id']}:{p['product_id']}"
+                ),
+            ]
+            await query.message.reply_text(text, reply_markup=InlineKeyboardMarkup([buttons]))
+    elif action in {'approve', 'reject'}:
+        try:
+            user_id = int(parts[2])
+            pid = parts[3]
+        except (IndexError, ValueError):
+            return
+        for p in data['pending']:
+            if p['user_id'] == user_id and p['product_id'] == pid:
+                data['pending'].remove(p)
+                if action == 'approve':
+                    buyers = data['products'].setdefault(pid, {}).setdefault('buyers', [])
+                    if user_id not in buyers:
+                        buyers.append(user_id)
+                    await storage.save(data)
+                    creds = data['products'][pid]
+                    msg = tr('credentials_msg', lang).format(username=creds.get('username'), password=creds.get('password'))
+                    await context.bot.send_message(user_id, msg)
+                    await context.bot.send_message(user_id, tr('use_code_hint', lang).format(pid=pid))
+                    await query.message.reply_text(tr('approved', lang))
+                else:
+                    await storage.save(data)
+                    await query.message.reply_text(tr('rejected', lang))
+                return
+        await query.message.reply_text(tr('pending_not_found', lang))
 
 
 @log_command
@@ -609,6 +666,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('setlang', setlang))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
+    app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     app.add_handler(CommandHandler('approve', approve))
     app.add_handler(CommandHandler('reject', reject))
