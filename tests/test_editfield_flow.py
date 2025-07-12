@@ -70,7 +70,7 @@ def test_editfield_flow_updates_product():
     assert context.user_data['edit_pid'] == 'p1'
     assert context.user_data['edit_field'] == 'price'
     lang = 'en'
-    assert update.replies[0][0] == tr('ask_new_value', lang)
+    assert update.replies[0][0] == tr('enter_new_value', lang)
 
     msg_update = DummyTextUpdate(ADMIN_ID, '2')
     asyncio.run(handle_edit_value(msg_update, context))

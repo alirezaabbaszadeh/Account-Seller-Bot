@@ -300,7 +300,7 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             )
         ])
         await query.message.reply_text(
-            tr('menu_editproduct', lang),
+            tr('select_product_edit', lang),
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
     elif action == 'stats':
@@ -323,7 +323,7 @@ async def editprod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton('name', callback_data=f'editfield:{pid}:name')],
     ]
     await query.message.reply_text(
-        tr('editproduct_usage', lang),
+        tr('select_field_edit', lang),
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
@@ -341,7 +341,7 @@ async def editfield_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     context.user_data['edit_pid'] = pid
     context.user_data['edit_field'] = field
-    await query.message.reply_text(tr('ask_new_value', lang))
+    await query.message.reply_text(tr('enter_new_value', lang))
 
 
 @log_command
