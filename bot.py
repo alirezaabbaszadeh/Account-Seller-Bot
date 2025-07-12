@@ -28,8 +28,9 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-# Store data.json in the same directory as this script
-DATA_FILE = Path(__file__).resolve().parent / 'data.json'
+# Data file path can be overridden via DATA_FILE env var
+DEFAULT_DATA_FILE = Path(__file__).resolve().parent / 'data.json'
+DATA_FILE = Path(os.environ.get('DATA_FILE', DEFAULT_DATA_FILE))
 try:
     ADMIN_ID = int(os.environ["ADMIN_ID"])
 except KeyError:

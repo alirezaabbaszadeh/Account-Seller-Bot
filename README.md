@@ -59,6 +59,8 @@ Example adding a product with a name:
      `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'`)
    Keep this key secret and consistent. Changing it will make existing
    `data.json` contents unreadable.
+   - `DATA_FILE` – optional path to the JSON storage file. Defaults to
+     `data.json` next to `bot.py`.
 3. Run the bot with your bot token. Pass it as an argument or via the
    `BOT_TOKEN` environment variable:
    ```bash
