@@ -219,6 +219,29 @@ async def buy_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+async def code_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send TOTP code when user presses inline button."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    pid = query.data.split(':')[1]
+    product = data['products'].get(pid)
+    if not product:
+        await query.message.reply_text(tr('product_not_found', lang))
+        return
+    if query.from_user.id not in product.get('buyers', []):
+        await query.message.reply_text(tr('not_purchased', lang))
+        return
+    secret = product.get('secret')
+    if not secret:
+        await query.message.reply_text(tr('no_secret', lang))
+        return
+    totp = pyotp.TOTP(secret)
+    await query.message.reply_text(tr('code_msg', lang).format(code=totp.now()))
+
+
+@log_command
 async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle main menu buttons via callback queries."""
     ensure_lang(context, update.effective_user.id)
@@ -902,6 +925,7 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('setlang', setlang))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
+    app.add_handler(CallbackQueryHandler(code_callback, pattern=r'^code:'))
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
