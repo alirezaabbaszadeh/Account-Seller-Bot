@@ -9,13 +9,13 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Admin approves purchases and credentials are sent to the buyer.
 - Buyers can obtain a current authenticator code with `/code <product_id>`.
 - Admin can list and manage buyers.
-- Admin can edit product fields (including the name) with `/editproduct` or from the admin menu using inline buttons, and resend credentials via `/resend` or the "Resend credentials" button in the admin menu.
-- Admin can remove a product with `/deleteproduct <id>` or via the admin menu where products are listed with delete buttons and confirmation.
+- Admin can edit product fields (including the name) via inline buttons in the admin menu or the `/editproduct` command. Credentials can also be resent using the "Resend" button or `/resend`.
+- Admin can remove a product with `/deleteproduct <id>` or by pressing the inline "Delete" button and confirming.
 - Admin can list pending purchases with `/pending` and reject them with `/reject`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.
 - Users can get a list of all commands with `/help`.
-- Bot messages support both English and Farsi.
+- Users may switch language from the main menu through the "Language" button or via `/setlang`. Bot messages support both English and Farsi.
 - پشتیبانی از منوهای سلسله‌مراتبی با دکمه‌های تلگرامی.
 - دکمه «بازگشت» و دکمه‌های جدید مدیریتی به منو افزوده شده‌اند.
 
@@ -79,21 +79,20 @@ BOT_TOKEN=<TOKEN> python bot.py
 ```
 
 ### ناوبری منوها
-پس از اجرای ربات با دستور `/start`، منوی اصلی نمایش داده می‌شود که شامل دکمه‌های «محصولات»، «تماس» و «راهنما» است. اگر کاربر مدیر باشد، گزینه «مدیریت» نیز دیده می‌شود. برای ورود به هر بخش روی دکمه مربوطه بزنید و در هر مرحله با دکمه «بازگشت» می‌توانید به مرحله قبل بروید.
+پس از اجرای ربات با دستور `/start`، منوی اصلی نمایش داده می‌شود که شامل دکمه‌های «محصولات»، «تماس»، «راهنما» و «زبان» است. اگر کاربر مدیر باشد، گزینه «مدیریت» نیز دیده می‌شود. برای ورود به هر بخش روی دکمه مربوطه بزنید و در هر مرحله با دکمه «بازگشت» می‌توانید به مرحله قبل بروید.
 
 **مثال کاربر**
 1. ارسال `/start`
 2. انتخاب «محصولات» برای مشاهده لیست حساب‌ها
-3. فشردن «بازگشت» جهت بازگشت به منوی اصلی
-
+3. انتخاب «زبان» و تعیین زبان دلخواه
+4. فشردن «بازگشت» جهت بازگشت به منوی اصلی
 **مثال مدیر**
 1. ارسال `/start`
 2. انتخاب «مدیریت»
-3. از منوی ظاهر شده گزینه «مدیریت محصولات» را انتخاب کنید
-4. در این بخش می‌توانید «افزودن»، «ویرایش» یا «حذف محصول» را انتخاب کرده و با
-   دکمه «بازگشت» به منوی قبل برگردید
-5. برای مشاهده لیست خریدهای معلق نیز می‌توان «در انتظار» را انتخاب کرد
-6. در همین بخش می‌توان با دکمه «ارسال دوباره اطلاعات ورود» مشخصات خریدار را دوباره فرستاد
+3. انتخاب «مدیریت محصولات»
+4. انتخاب محصول و استفاده از دکمه‌های «حذف» یا «ارسال دوباره»
+5. انتخاب «در انتظار» برای مشاهده خریدهای معلق
+6. فشردن «بازگشت» جهت بازگشت به منوی قبل
 
 **مثال ویرایش محصول**
 1. ورود به بخش «مدیریت»
