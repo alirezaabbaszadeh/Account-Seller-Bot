@@ -600,6 +600,38 @@ async def clearbuyers_callback(update: Update, context: ContextTypes.DEFAULT_TYP
 
 
 @log_command
+async def resend_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Resend credentials to a specific buyer via inline menu."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    try:
+        _, pid, uid_str = query.data.split(':')
+        uid = int(uid_str)
+    except (ValueError, IndexError):
+        return
+    product = data['products'].get(pid)
+    if not product:
+        await query.message.reply_text(tr('product_not_found', lang))
+        return
+    if uid not in product.get('buyers', []):
+        await query.message.reply_text(tr('buyer_not_found', lang))
+        return
+    msg = tr('credentials_msg', lang).format(
+        username=product.get('username'),
+        password=product.get('password'),
+    )
+    await context.bot.send_message(uid, msg)
+    await context.bot.send_message(
+        uid,
+        tr('use_code_button', lang),
+        reply_markup=code_keyboard(pid, lang),
+    )
+    await query.message.reply_text(tr('credentials_resent', lang))
+
+
+@log_command
 async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle admin inline actions like listing and approving pending purchases."""
     ensure_lang(context, update.effective_user.id)
@@ -1077,6 +1109,7 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(stats_callback, pattern=r'^adminstats:'))
     app.add_handler(CallbackQueryHandler(buyerlist_callback, pattern=r'^buyerlist:'))
     app.add_handler(CallbackQueryHandler(clearbuyers_callback, pattern=r'^adminclearbuyers:'))
+    app.add_handler(CallbackQueryHandler(resend_callback, pattern=r'^adminresend:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
     app.add_handler(CallbackQueryHandler(editfield_callback, pattern=r'^editfield:'))
