@@ -51,6 +51,10 @@ the admin menu to add items interactively.
    ```bash
    pip install -e .
    ```
+   For development, include optional dependencies with:
+   ```bash
+   pip install -e .[dev]
+   ```
 2. The bot stores its state in a `data.json` file located next to `bot.py`.
    **Do not commit this file.** It is excluded via `.gitignore` and will be
    created automatically on first run if it doesn't exist.
