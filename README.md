@@ -75,8 +75,13 @@ the admin menu to add items interactively.
    ```bash
    python bot.py <TOKEN>
    # or
-BOT_TOKEN=<TOKEN> python bot.py
-```
+   BOT_TOKEN=<TOKEN> python bot.py
+
+   # using the installed script
+   account-seller-bot <TOKEN>
+   # or
+   BOT_TOKEN=<TOKEN> account-seller-bot
+   ```
 
 ### ناوبری منوها
 پس از اجرای ربات با دستور `/start`، منوی اصلی نمایش داده می‌شود که شامل دکمه‌های «محصولات»، «تماس»، «راهنما» و «زبان» است. اگر کاربر مدیر باشد، گزینه «مدیریت» نیز دیده می‌شود. برای ورود به هر بخش روی دکمه مربوطه بزنید و در هر مرحله با دکمه «بازگشت» می‌توانید به مرحله قبل بروید.
