@@ -300,3 +300,31 @@ def test_adminmenu_resend_usage():
     asyncio.run(admin_menu_callback(back_update, back_context))
     back_text, _ = back_update.replies[0]
     assert back_text == tr('menu_manage_products', 'en')
+
+
+def test_adminmenu_resend_requires_admin():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(42, 'adminmenu:resend')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, _ = update.replies[0]
+    assert text == tr('unauthorized', 'en')
+
+
+def test_adminmenu_deleteproduct_requires_admin():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(42, 'adminmenu:deleteproduct')
+    context = DummyContext()
+    asyncio.run(admin_menu_callback(update, context))
+    text, _ = update.replies[0]
+    assert text == tr('unauthorized', 'en')
+
+
+def test_language_menu_invalid_selection():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(42, 'language:zz')
+    context = DummyContext()
+    asyncio.run(language_menu_callback(update, context))
+    assert context.user_data['lang'] == 'en'
+    assert '42' not in data.get('languages', {})
+    assert update.replies == []
