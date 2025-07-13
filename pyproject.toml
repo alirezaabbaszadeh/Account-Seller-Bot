@@ -18,3 +18,9 @@ dependencies = [
 [project.scripts]
 account-seller-bot = "bot:main"
 
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "pytest",
+]
+
