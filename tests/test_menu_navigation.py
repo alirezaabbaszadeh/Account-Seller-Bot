@@ -143,6 +143,9 @@ def test_manage_products_submenu():
     assert 'adminmenu:clearbuyers' in callbacks
     assert 'adminmenu:resend' in callbacks
     assert markup.inline_keyboard[-1][0].callback_data == 'menu:admin'
+    texts = [btn.text for row in markup.inline_keyboard for btn in row]
+    assert tr('menu_resend', 'en') in texts
+
 
 def test_adminmenu_addproduct_usage():
     data['languages'] = {}
@@ -225,6 +228,7 @@ def test_adminmenu_buyers_usage():
     assert text == tr('select_product_buyers', 'en')
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
+    assert markup.inline_keyboard[0][0].callback_data == 'buyerlist:p1'
 
     back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
     back_context = DummyContext()
@@ -261,6 +265,7 @@ def test_adminmenu_resend_usage():
     assert text == tr('select_product_buyers', 'en')
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
     assert callbacks.count('adminmenu:manage') == 1
+    assert markup.inline_keyboard[0][0].callback_data == 'adminresend:p1'
 
     back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
     back_context = DummyContext()
