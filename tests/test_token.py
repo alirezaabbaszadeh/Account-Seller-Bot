@@ -5,7 +5,6 @@ import types
 import importlib.util
 
 import os
-os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")
 
 if importlib.util.find_spec("telegram") is None:
     telegram = types.ModuleType("telegram")

@@ -5,9 +5,7 @@ from pathlib import Path
 import sys
 import pytest
 
-os.environ.setdefault("ADMIN_ID", "1")
-os.environ.setdefault("ADMIN_PHONE", "+111")
-os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")
+
 
 pytest.importorskip("telegram")
 
