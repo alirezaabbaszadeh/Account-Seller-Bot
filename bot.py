@@ -190,6 +190,7 @@ def build_main_menu(lang: str, is_admin: bool = False) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(tr('menu_products', lang), callback_data='menu:products')],
         [InlineKeyboardButton(tr('menu_contact', lang), callback_data='menu:contact')],
         [InlineKeyboardButton(tr('menu_help', lang), callback_data='menu:help')],
+        [InlineKeyboardButton(tr('menu_language', lang), callback_data='menu:language')],
     ]
     if is_admin:
         keyboard.append([InlineKeyboardButton(tr('menu_admin', lang), callback_data='menu:admin')])
@@ -315,6 +316,38 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text(
             tr('menu_admin', lang), reply_markup=build_admin_menu(lang)
         )
+
+
+@log_command
+async def language_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show language selection menu and handle selection."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    parts = query.data.split(':')
+    if query.data == 'menu:language':
+        buttons = [
+            [InlineKeyboardButton(tr('lang_en', lang), callback_data='language:en')],
+            [InlineKeyboardButton(tr('lang_fa', lang), callback_data='language:fa')],
+            [InlineKeyboardButton(tr('menu_back', lang), callback_data='menu:main')],
+        ]
+        await query.message.reply_text(
+            tr('menu_language', lang), reply_markup=InlineKeyboardMarkup(buttons)
+        )
+        return
+    if parts[0] == 'language' and len(parts) > 1:
+        lang_code = parts[1]
+        if lang_code in SUPPORTED_LANGS:
+            data.setdefault('languages', {})[str(update.effective_user.id)] = lang_code
+            await storage.save(data)
+            context.user_data['lang'] = lang_code
+            await query.message.reply_text(
+                tr('language_set', lang_code),
+                reply_markup=build_main_menu(
+                    lang_code, update.effective_user.id == ADMIN_ID
+                ),
+            )
 
 
 @log_command
@@ -1167,8 +1200,9 @@ def main(token: str | None = None):
     app.add_handler(CommandHandler('contact', contact))
     app.add_handler(CommandHandler('products', products))
     app.add_handler(CommandHandler('setlang', setlang))
+    app.add_handler(CallbackQueryHandler(language_menu_callback, pattern=r'^(menu:language$|language:)'))
     app.add_handler(CallbackQueryHandler(resend_callback, pattern=r'^adminresend:'))
-    app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:'))
+    app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:(?!language$)'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(CallbackQueryHandler(code_callback, pattern=r'^code:'))
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))

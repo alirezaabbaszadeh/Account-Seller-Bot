@@ -415,6 +415,18 @@ TRANSLATIONS = {
         'en': '/stats <product_id> - show product statistics',
         'fa': '/stats <product_id> - نمایش آمار محصول'
     },
+    'menu_language': {
+        'en': 'Language',
+        'fa': 'زبان'
+    },
+    'lang_en': {
+        'en': 'English',
+        'fa': 'انگلیسی'
+    },
+    'lang_fa': {
+        'en': 'Farsi',
+        'fa': 'فارسی'
+    },
 }
 
 
