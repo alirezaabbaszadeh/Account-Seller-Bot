@@ -15,10 +15,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from bot import (  # noqa: E402
     admin_callback,
     admin_menu_callback,
-    stats_callback,
     buyerlist_callback,
-    clearbuyers_callback,
     editprod_callback,
+    resend_callback,
     menu_callback,
     start,
     addproduct,
@@ -220,3 +219,13 @@ def test_buyerlist_callback_delete_button():
     text, markup = update.replies[0]
     assert text == '2'
     assert markup.inline_keyboard[0][0].text == tr('delete_button', 'en')
+
+
+def test_resend_callback_list_buttons():
+    data['products'] = {'p1': {'price': '1', 'buyers': [2]}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'adminresend:p1')
+    context = DummyContext()
+    asyncio.run(resend_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == '2'
+    assert markup.inline_keyboard[0][0].callback_data == 'adminresend:p1:2'

@@ -601,13 +601,36 @@ async def clearbuyers_callback(update: Update, context: ContextTypes.DEFAULT_TYP
 
 @log_command
 async def resend_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Resend credentials to a specific buyer via inline menu."""
+    """Handle resend inline actions."""
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     query = update.callback_query
     await query.answer()
+    parts = query.data.split(':')
+    if len(parts) == 2:
+        # List buyers for the selected product
+        pid = parts[1]
+        product = data['products'].get(pid)
+        if not product:
+            await query.message.reply_text(tr('product_not_found', lang))
+            return
+        buyers = product.get('buyers', [])
+        if not buyers:
+            await query.message.reply_text(tr('no_buyers', lang))
+            return
+        for uid in buyers:
+            button = [
+                InlineKeyboardButton(
+                    tr('resend_button', lang),
+                    callback_data=f'adminresend:{pid}:{uid}',
+                )
+            ]
+            await query.message.reply_text(
+                str(uid), reply_markup=InlineKeyboardMarkup([button])
+            )
+        return
     try:
-        _, pid, uid_str = query.data.split(':')
+        _, pid, uid_str = parts
         uid = int(uid_str)
     except (ValueError, IndexError):
         return

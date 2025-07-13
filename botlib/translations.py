@@ -167,6 +167,10 @@ TRANSLATIONS = {
         'en': 'Delete',
         'fa': 'حذف'
     },
+    'resend_button': {
+        'en': 'Resend',
+        'fa': 'ارسال مجدد'
+    },
     'code_usage': {
         'en': 'Usage: /code <product_id>',
         'fa': 'استفاده: /code <product_id>'
