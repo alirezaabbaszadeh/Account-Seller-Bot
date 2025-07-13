@@ -13,7 +13,13 @@ os.environ.setdefault("FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA
 pytest.importorskip("telegram")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # noqa: E402
-from bot import menu_callback, admin_menu_callback, data, ADMIN_ID  # noqa: E402
+from bot import (  # noqa: E402
+    menu_callback,
+    admin_menu_callback,
+    language_menu_callback,
+    data,
+    ADMIN_ID,
+)
 from botlib.translations import tr  # noqa: E402
 
 
@@ -101,7 +107,34 @@ def test_back_to_main_menu():
     assert tr('menu_products', 'en') in buttons
     assert tr('menu_contact', 'en') in buttons
     assert tr('menu_help', 'en') in buttons
+    assert tr('menu_language', 'en') in buttons
     assert tr('menu_admin', 'en') not in buttons
+
+
+def test_language_menu_buttons():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(42, 'menu:language')
+    context = DummyContext()
+    asyncio.run(language_menu_callback(update, context))
+    text, markup = update.replies[0]
+    assert text == tr('menu_language', 'en')
+    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert 'language:en' in callbacks
+    assert 'language:fa' in callbacks
+    assert markup.inline_keyboard[-1][0].callback_data == 'menu:main'
+
+
+def test_language_selection_changes_data():
+    data['languages'] = {}
+    update = DummyCallbackUpdate(42, 'language:fa')
+    context = DummyContext()
+    asyncio.run(language_menu_callback(update, context))
+    assert context.user_data['lang'] == 'fa'
+    assert data['languages']['42'] == 'fa'
+    text, markup = update.replies[0]
+    assert text == tr('language_set', 'fa')
+    buttons = [btn.callback_data for row in markup.inline_keyboard for btn in row]
+    assert 'menu:language' in buttons
 
 
 def test_admin_menu_requires_admin():

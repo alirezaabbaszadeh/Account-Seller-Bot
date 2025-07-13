@@ -27,6 +27,9 @@ Users can switch their preferred language with:
 
 Replace `<code>` with a language code such as `en` or `fa`.
 
+You can also change the language from the main menu by pressing the
+"Language" button and selecting your preferred option.
+
 The `/addproduct` command accepts an optional `[name]` argument to label the product:
 
 ```bash
