@@ -14,6 +14,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
     CallbackQueryHandler,
+    ConversationHandler,
 )
 import pyotp
 from botlib.translations import tr
@@ -1195,6 +1196,7 @@ def get_bot_token(token: str | None) -> str:
 def main(token: str | None = None):
     token = get_bot_token(token)
     app = Application.builder().token(token).build()
+    import bot_conversations
 
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('contact', contact))
@@ -1205,6 +1207,38 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r'^menu:(?!language$)'))
     app.add_handler(CallbackQueryHandler(buy_callback, pattern=r'^buy:'))
     app.add_handler(CallbackQueryHandler(code_callback, pattern=r'^code:'))
+    addproduct_conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                bot_conversations.addproduct_menu, pattern=r'^adminmenu:addproduct$'
+            ),
+            CommandHandler('addproduct', bot_conversations.addproduct_menu, has_args=False),
+        ],
+        states={
+            bot_conversations.ASK_ID: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_id)
+            ],
+            bot_conversations.ASK_PRICE: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_price)
+            ],
+            bot_conversations.ASK_USERNAME: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_username)
+            ],
+            bot_conversations.ASK_PASSWORD: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_password)
+            ],
+            bot_conversations.ASK_SECRET: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_secret)
+            ],
+            bot_conversations.ASK_NAME: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, bot_conversations.addproduct_name)
+            ],
+        },
+        fallbacks=[
+            MessageHandler(filters.Regex(f'^{bot_conversations.CANCEL_TEXT}$'), bot_conversations.addproduct_cancel)
+        ],
+    )
+    app.add_handler(addproduct_conv)
     app.add_handler(CallbackQueryHandler(admin_menu_callback, pattern=r'^adminmenu:'))
     app.add_handler(CallbackQueryHandler(stats_callback, pattern=r'^adminstats:'))
     app.add_handler(CallbackQueryHandler(buyerlist_callback, pattern=r'^buyerlist:'))

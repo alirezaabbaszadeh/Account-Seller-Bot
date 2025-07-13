@@ -11,11 +11,15 @@ CANCEL_TEXT = "Cancel"
 async def addproduct_menu(update, context):
     ensure_lang(context, update.effective_user.id)
     lang = context.user_data["lang"]
+    message = getattr(update, "message", None)
+    if message is None:
+        message = update.callback_query.message
+        await update.callback_query.answer()
     if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text(tr("unauthorized", lang))
+        await message.reply_text(tr("unauthorized", lang))
         return ConversationHandler.END
     context.user_data["new_product"] = {}
-    await update.message.reply_text(
+    await message.reply_text(
         tr("ask_product_id", lang),
         reply_markup=ReplyKeyboardMarkup(
             [[tr("cancel_button", lang)]], one_time_keyboard=True

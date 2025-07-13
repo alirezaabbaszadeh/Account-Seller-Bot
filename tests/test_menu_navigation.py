@@ -20,6 +20,7 @@ from bot import (  # noqa: E402
     data,
     ADMIN_ID,
 )
+import bot_conversations  # noqa: E402
 from botlib.translations import tr  # noqa: E402
 
 
@@ -180,22 +181,14 @@ def test_manage_products_submenu():
     assert tr('menu_resend', 'en') in texts
 
 
-def test_adminmenu_addproduct_usage():
+def test_adminmenu_addproduct_starts_conversation():
     data['languages'] = {}
     update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
     context = DummyContext()
-    asyncio.run(admin_menu_callback(update, context))
-    text, markup = update.replies[0]
-    assert text == tr('addproduct_usage', 'en')
-    callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
-    assert callbacks == ['adminmenu:manage']
-
-    # Simulate pressing the back button
-    back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
-    back_context = DummyContext()
-    asyncio.run(admin_menu_callback(back_update, back_context))
-    back_text, _ = back_update.replies[0]
-    assert back_text == tr('menu_manage_products', 'en')
+    state = asyncio.run(bot_conversations.addproduct_menu(update, context))
+    assert state == bot_conversations.ASK_ID
+    text, _ = update.replies[0]
+    assert text == tr('ask_product_id', 'en')
 
 
 def test_adminmenu_editproduct_usage():

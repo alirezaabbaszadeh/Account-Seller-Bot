@@ -21,10 +21,10 @@ from bot import (  # noqa: E402
     resend_callback,
     menu_callback,
     start,
-    addproduct,
     data,
     ADMIN_ID,
 )
+import bot_conversations  # noqa: E402
 from botlib.translations import tr  # noqa: E402
 
 
@@ -120,15 +120,12 @@ def test_admin_submenu_button():
     assert tr('menu_stats', 'en') in buttons
 
 
-def test_adminmenu_addproduct_usage():
+def test_adminmenu_addproduct_starts_conversation():
     update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:addproduct')
     context = DummyContext()
-    asyncio.run(admin_menu_callback(update, context))
-
-    msg_update = DummyMessageUpdate(ADMIN_ID)
-    msg_context = DummyContext()
-    asyncio.run(addproduct(msg_update, msg_context))
-    text, _ = msg_update.replies[0]
+    state = asyncio.run(bot_conversations.addproduct_menu(update, context))
+    assert state == bot_conversations.ASK_ID
+    text, _ = update.replies[0]
     assert text == tr('ask_product_id', 'en')
 
 
