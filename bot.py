@@ -83,6 +83,22 @@ def log_command(func):
     return wrapper
 
 
+def admin_required(func):
+    """Ensure the handler is executed only by the admin."""
+
+    @wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        ensure_lang(context, update.effective_user.id)
+        lang = context.user_data['lang']
+        if update.effective_user.id != ADMIN_ID:
+            target = update.message or update.callback_query.message
+            await target.reply_text(tr('unauthorized', lang))
+            return
+        return await func(update, context, *args, **kwargs)
+
+    return wrapper
+
+
 @log_command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ensure_lang(context, update.effective_user.id)
@@ -352,16 +368,13 @@ async def language_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
 
 
 @log_command
+@admin_required
 async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle buttons in the admin submenu."""
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     query = update.callback_query
     await query.answer()
     action = query.data.split(':')[1]
-    if update.effective_user.id != ADMIN_ID:
-        await query.message.reply_text(tr('unauthorized', lang))
-        return
     if action == 'pending':
         if not data['pending']:
             await query.message.reply_text(tr('no_pending', lang))
@@ -552,18 +565,13 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def handle_edit_value(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Update product field when awaiting new value from admin."""
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     pid = context.user_data.get('edit_pid')
     field = context.user_data.get('edit_field')
     if not pid or not field:
-        return
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        context.user_data.pop('edit_pid', None)
-        context.user_data.pop('edit_field', None)
         return
     value = update.message.text
     product = data['products'].get(pid)
@@ -731,17 +739,14 @@ async def deleteprod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 @log_command
+@admin_required
 async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle admin inline actions like listing and approving pending purchases."""
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
     query = update.callback_query
     await query.answer()
     parts = query.data.split(':')
     action = parts[1]
-    if update.effective_user.id != ADMIN_ID:
-        await query.message.reply_text(tr('unauthorized', lang))
-        return
     if action == 'pending':
         if not data['pending']:
             await query.message.reply_text(tr('no_pending', lang))
@@ -806,12 +811,9 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         user_id = int(context.args[0])
         pid = context.args[1]
@@ -866,12 +868,9 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     if not context.args:
         await update.message.reply_text(tr('ask_product_id', lang))
         return
@@ -902,12 +901,9 @@ async def addproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
         field = context.args[1]
@@ -928,12 +924,9 @@ async def editproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
     except IndexError:
@@ -948,12 +941,9 @@ async def deleteproduct(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
     except IndexError:
@@ -989,12 +979,9 @@ async def resend(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
     except IndexError:
@@ -1015,13 +1002,10 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """List all pending purchases for the admin."""
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     if not data['pending']:
         await update.message.reply_text(tr('no_pending', lang))
         return
@@ -1036,13 +1020,10 @@ async def pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Reject a pending purchase without approving it."""
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         user_id = int(context.args[0])
         pid = context.args[1]
@@ -1059,12 +1040,9 @@ async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
     except IndexError:
@@ -1082,12 +1060,9 @@ async def buyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
         uid = int(context.args[1])
@@ -1107,12 +1082,9 @@ async def deletebuyer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @log_command
+@admin_required
 async def clearbuyers(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    ensure_lang(context, update.effective_user.id)
     lang = context.user_data['lang']
-    if update.message.from_user.id != ADMIN_ID:
-        await update.message.reply_text(tr('unauthorized', lang))
-        return
     try:
         pid = context.args[0]
     except IndexError:
