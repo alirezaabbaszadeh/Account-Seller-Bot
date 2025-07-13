@@ -24,12 +24,7 @@ from bot_conversations import (
 from bot import data, storage, ADMIN_ID
 from telegram.ext import ConversationHandler
 
-# Required env vars for bot import
-os.environ.setdefault("ADMIN_ID", "1")
-os.environ.setdefault("ADMIN_PHONE", "+111")
-os.environ.setdefault(
-    "FERNET_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="
-)
+
 
 pytest.importorskip("telegram")
 
