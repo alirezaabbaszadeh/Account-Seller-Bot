@@ -9,7 +9,7 @@ This project contains a simple Telegram bot for selling products with manual pay
 - Buyers can obtain a current authenticator code with `/code <product_id>`.
 - Admin can list and manage buyers.
 - Admin can edit product fields (including the name) with `/editproduct` or from the admin menu using inline buttons, and resend credentials via `/resend` or the "Resend credentials" button in the admin menu.
-- Admin can remove a product with `/deleteproduct <id>`.
+- Admin can remove a product with `/deleteproduct <id>` or via the admin menu where products are listed with delete buttons and confirmation.
 - Admin can list pending purchases with `/pending` and reject them with `/reject`.
 - Stats for each product available via `/stats`.
 - Users can view the admin phone number with `/contact`.

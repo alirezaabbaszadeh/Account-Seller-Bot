@@ -17,6 +17,7 @@ from bot import (  # noqa: E402
     admin_menu_callback,
     buyerlist_callback,
     editprod_callback,
+    deleteprod_callback,
     resend_callback,
     menu_callback,
     start,
@@ -229,3 +230,19 @@ def test_resend_callback_list_buttons():
     text, markup = update.replies[0]
     assert text == '2'
     assert markup.inline_keyboard[0][0].callback_data == 'adminresend:p1:2'
+
+
+def test_deleteprod_flow():
+    data['products'] = {'p1': {'price': '1'}}
+    update = DummyCallbackUpdate(ADMIN_ID, 'delprod:p1')
+    context = DummyContext()
+    asyncio.run(deleteprod_callback(update, context))
+    text, markup = update.replies[0]
+    assert tr('confirm_delete', 'en').format(pid='p1') == text
+    assert markup.inline_keyboard[0][0].callback_data == 'delprod:p1:confirm'
+
+    confirm_update = DummyCallbackUpdate(ADMIN_ID, 'delprod:p1:confirm')
+    confirm_context = DummyContext()
+    asyncio.run(deleteprod_callback(confirm_update, confirm_context))
+    assert 'p1' not in data['products']
+    assert confirm_update.replies[0][0] == tr('product_deleted', 'en')
