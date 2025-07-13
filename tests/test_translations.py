@@ -66,3 +66,8 @@ def test_tr_new_menu_strings():
 def test_tr_menu_resend():
     assert tr('menu_resend', 'en') == 'Resend credentials'
     assert tr('menu_resend', 'fa') == 'ارسال مجدد اطلاعات'
+
+
+def test_tr_delete_strings():
+    assert tr('select_product_delete', 'en').startswith('Select a product')
+    assert tr('confirm_delete', 'fa').startswith('حذف')

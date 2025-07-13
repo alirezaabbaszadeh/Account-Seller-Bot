@@ -231,6 +231,10 @@ TRANSLATIONS = {
         'en': 'Select a product to clear buyers:',
         'fa': 'محصول مورد نظر برای پاک‌سازی خریداران را انتخاب کنید:'
     },
+    'select_product_delete': {
+        'en': 'Select a product to delete:',
+        'fa': 'محصول مورد نظر برای حذف را انتخاب کنید:'
+    },
     'editproduct_usage': {
         'en': 'Usage: /editproduct <id> <field> <value> (field: price, username, password, secret, name)',
         'fa': 'استفاده: /editproduct <id> <field> <value>'
@@ -258,6 +262,10 @@ TRANSLATIONS = {
     'product_deleted': {
         'en': 'Product deleted',
         'fa': 'محصول حذف شد'
+    },
+    'confirm_delete': {
+        'en': 'Delete {pid}?',
+        'fa': 'حذف {pid}؟'
     },
     'resend_usage': {
         'en': 'Usage: /resend <product_id> [user_id]',

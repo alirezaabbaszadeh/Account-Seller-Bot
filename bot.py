@@ -381,11 +381,20 @@ async def admin_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
     elif action == 'deleteproduct':
+        if not data['products']:
+            await query.message.reply_text(
+                tr('no_products', lang),
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
+                ),
+            )
+            return
+        keyboard = [[InlineKeyboardButton(pid, callback_data=f'delprod:{pid}')]
+                    for pid in data['products']]
+        keyboard.append([InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')])
         await query.message.reply_text(
-            tr('deleteproduct_usage', lang),
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:manage')]]
-            ),
+            tr('select_product_delete', lang),
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
     elif action == 'stats':
         if not data['products']:
@@ -652,6 +661,39 @@ async def resend_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=code_keyboard(pid, lang),
     )
     await query.message.reply_text(tr('credentials_resent', lang))
+
+
+@log_command
+async def deleteprod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle product deletion via inline buttons."""
+    ensure_lang(context, update.effective_user.id)
+    lang = context.user_data['lang']
+    query = update.callback_query
+    await query.answer()
+    parts = query.data.split(':')
+    pid = parts[1]
+    if len(parts) == 2:
+        # Ask for confirmation
+        if pid not in data['products']:
+            await query.message.reply_text(tr('product_not_found', lang))
+            return
+        buttons = [
+            [InlineKeyboardButton(tr('delete_button', lang), callback_data=f'delprod:{pid}:confirm')],
+            [InlineKeyboardButton(tr('menu_back', lang), callback_data='adminmenu:deleteproduct')],
+        ]
+        await query.message.reply_text(
+            tr('confirm_delete', lang).format(pid=pid),
+            reply_markup=InlineKeyboardMarkup(buttons),
+        )
+        return
+    if len(parts) == 3 and parts[2] == 'confirm':
+        if pid in data['products']:
+            del data['products'][pid]
+            await storage.save(data)
+            await query.message.reply_text(tr('product_deleted', lang))
+        else:
+            await query.message.reply_text(tr('product_not_found', lang))
+        return
 
 
 @log_command
@@ -1133,6 +1175,7 @@ def main(token: str | None = None):
     app.add_handler(CallbackQueryHandler(stats_callback, pattern=r'^adminstats:'))
     app.add_handler(CallbackQueryHandler(buyerlist_callback, pattern=r'^buyerlist:'))
     app.add_handler(CallbackQueryHandler(clearbuyers_callback, pattern=r'^adminclearbuyers:'))
+    app.add_handler(CallbackQueryHandler(deleteprod_callback, pattern=r'^delprod:'))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern=r'^admin:'))
     app.add_handler(CallbackQueryHandler(editprod_callback, pattern=r'^editprod:'))
     app.add_handler(CallbackQueryHandler(editfield_callback, pattern=r'^editfield:'))

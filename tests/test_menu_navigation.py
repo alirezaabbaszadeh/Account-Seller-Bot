@@ -183,15 +183,17 @@ def test_adminmenu_editproduct_usage():
     assert back_text == tr('menu_manage_products', 'en')
 
 
-def test_adminmenu_deleteproduct_usage():
+def test_adminmenu_deleteproduct_buttons():
     data['languages'] = {}
+    data['products'] = {'p1': {'price': '1'}}
     update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:deleteproduct')
     context = DummyContext()
     asyncio.run(admin_menu_callback(update, context))
     text, markup = update.replies[0]
-    assert text == tr('deleteproduct_usage', 'en')
+    assert text == tr('select_product_delete', 'en')
+    assert markup.inline_keyboard[0][0].callback_data == 'delprod:p1'
     callbacks = [btn.callback_data for row in markup.inline_keyboard for btn in row]
-    assert callbacks == ['adminmenu:manage']
+    assert 'adminmenu:manage' in callbacks
 
     back_update = DummyCallbackUpdate(ADMIN_ID, 'adminmenu:manage')
     back_context = DummyContext()
