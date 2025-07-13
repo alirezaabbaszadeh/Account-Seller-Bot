@@ -47,9 +47,9 @@ Alternatively, run `/addproduct` with no arguments or choose "Add product" from
 the admin menu to add items interactively.
 
 ## Setup
-1. Install dependencies:
+1. Install the project in editable mode:
    ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
 2. The bot stores its state in a `data.json` file located next to `bot.py`.
    **Do not commit this file.** It is excluded via `.gitignore` and will be
